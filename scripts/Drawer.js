@@ -8,8 +8,12 @@ export class Drawer {
         this.isDrawing = true;
         this.isDragging = false;
         this.dragStart = null;
+        this.vectorStart = null;
+        this.vectorEnd = null;
+        this.vectorEndSave = null;
         this.dragPolygon = null;
-        this.dragBase = null;
+        this.dragBaseRef = null;
+        this.dragBaseCopy = null;
         this.currentMousePos = null;
         this.enclosingPolygon = null;
 
@@ -34,7 +38,7 @@ export class Drawer {
         if (this.polygon.isClosed())
             return this;
 
-        this.isDrawing = this.polygon
+        this.isDrawing = !this.polygon
                            .addPoint(point)
                            .isClosed();
 
@@ -47,8 +51,18 @@ export class Drawer {
 
         this.isDragging = true;
         this.dragStart = point;
-        this.dragPolygon = new Polygon([...polygon.getPoints()]);
-        this.dragBase = polygon;
+        if (polygon === this.polygon) {
+            this.vectorStart = point;
+            this.vectorEnd = point;
+        } else {
+            this.vectorEndSave = this.vectorEnd;
+        }
+        if (!this.dragPolygon)
+            this.dragPolygon = new Polygon([...polygon.getPoints()]);
+        this.dragBaseRef = polygon;
+        this.dragBaseCopy = new Polygon([...polygon.getPoints()]);
+
+        this.updateDraggedPoints(point.x, point.y);
 
         return this;
     }
@@ -79,12 +93,26 @@ export class Drawer {
     }
 
     updateDraggedPoints(x, y) {
-        if (!this.isDragging || !this.dragPolygon || !this.dragBase)
+        if (!this.isDragging ||
+            !this.dragPolygon ||
+            !this.dragBaseRef ||
+            !this.dragBaseCopy ||
+            !this.dragStart ||
+            !this.vectorEnd)
             return this;
 
         const dx = x - this.dragStart.x;
         const dy = y - this.dragStart.y;
-        this.dragPolygon.setPoints(this.dragBase.getTranslatedPoints(dx, dy)) // ! we set the points again each time, there must be a way to avoid this (using translate for example)
+        this.dragPolygon.setPoints(this.dragBaseCopy.getTranslatedPoints(dx, dy)) // ! we set the points again each time, there must be a way to avoid this (using translate for example)
+
+        if (this.dragBaseRef === this.polygon) {
+            this.vectorEnd = { x, y };
+        } else if (this.dragBaseRef === this.dragPolygon && this.vectorEndSave) {
+            this.vectorEnd = {
+                x: this.vectorEndSave.x + dx,
+                y: this.vectorEndSave.y + dy
+            };
+        }
 
         return this;
     }
@@ -99,7 +127,9 @@ export class Drawer {
     handleMouseUp(_) {
         if (this.isDragging) {
             this.isDragging = false;
-            this.dragBase = null;
+            this.dragBaseRef = null;
+            this.dragBaseCopy = null;
+            this.vectorEndSave = null;
         }
         this.draw();
     }
@@ -115,9 +145,7 @@ export class Drawer {
         this.ctx.stroke();
     }
 
-    draw() {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
+    drawAllPolygons() {
         if (!this.polygon.isEmpty())
             this.drawPolygon(this.polygon.getPoints());
         if (this.dragPolygon)
@@ -125,16 +153,16 @@ export class Drawer {
         if (this.enclosingPolygon)
             this.drawPolygon(this.enclosingPolygon.getPoints(), 'red');
 
-        if (!this.polygon.isEmpty() && !this.polygon.isClosed() && this.currentMousePos)
-            this.drawLineFromLastPointToMouse();
-
-        // TODO: draw vector between base and duplicated polygon (green)
+        return this;
     }
 
     drawLineFromLastPointToMouse() {
+        if (this.polygon.isEmpty() || !this.isDrawing || !this.currentMousePos)
+            return this;
+
         const lastPoint = this.polygon.getLastPoint();
-        if (!lastPoint || !this.currentMousePos)
-            return;
+        if (!lastPoint)
+            return this;
 
         this.ctx.beginPath();
         this.ctx.moveTo(lastPoint.x, lastPoint.y);
@@ -142,5 +170,29 @@ export class Drawer {
         this.ctx.strokeStyle = this.polygon.isConvexAfterAdding({ x: this.currentMousePos.x, y: this.currentMousePos.y }) ? 'gray' : 'red';
         this.ctx.lineWidth = 1;
         this.ctx.stroke();
+        return this
+    }
+
+    drawVector() {
+        if (!this.vectorStart || !this.vectorEnd)
+            return;
+
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.vectorStart.x, this.vectorStart.y);
+        this.ctx.lineTo(this.vectorEnd.x, this.vectorEnd.y);
+        this.ctx.strokeStyle = 'green';
+        this.ctx.lineWidth = 1;
+        this.ctx.setLineDash([5, 5]);
+        this.ctx.stroke();
+        this.ctx.setLineDash([]);
+    }
+
+    draw() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this
+          .drawAllPolygons()
+          .drawLineFromLastPointToMouse()
+          .drawVector();
     }
 }
