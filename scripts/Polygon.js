@@ -1,18 +1,20 @@
 export class Polygon {
     constructor(points = []) {
         this.points = points;
-        this.state = this.updateState();
+        this.updateState();
     }
 
     updateState() {
         const points = this.points;
 
         if (points.length >= 3 && this.arePointsEqual(points[0], points[points.length - 1]))
-            return "closed";
+            this.state = "closed";
         else if (points.length >= 2)
-            return "started";
+            this.state = "started";
         else
-            return "default";
+            this.state = "default";
+
+        return this;
     }
 
     arePointsEqual(point1, point2) {
@@ -20,11 +22,15 @@ export class Polygon {
     }
 
     addPoint(point) {
-        if (this.isClosed() || !this.isConvexAfterAdding(point))
-            return;
+        if (this.isClosed())
+            return this;
+        if (this.isClosingPoint(point))
+            return this.close();
+        if (!this.isConvexAfterAdding(point))
+            return this;
 
         this.points.push(point);
-        this.state = this.updateState();
+        return this.updateState();
     }
 
     isConvexAfterAdding(point) {
@@ -58,19 +64,21 @@ export class Polygon {
         return dx1 * dy2 - dy1 * dx2;
     }
 
-    closePolygon() {
+    close() {
         if (this.isClosed())
-            return;
+            return this;
 
         console.log("closing the polygon")
 
         this.points.push(this.points[0]);
-        this.state = this.updateState();
+        return this.updateState();
     }
 
     translate(dx, dy) {
         console.log('translate', dx, dy);
         this.points = this.getTranslatedPoints(dx, dy)
+
+        return this;
     }
 
     getTranslatedPoints(dx, dy) {

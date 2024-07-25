@@ -15,19 +15,14 @@ export class Drawer {
     }
 
     handleMouseDown(e) {
-        // TODO: handle separate mouse down logic in separate functions
-
         if (this.polygon.isClosed())
             return;
 
         const { offsetX, offsetY } = e;
-        const point = { x: offsetX, y: offsetY };
-        if (this.polygon.isClosingPoint(point)) {
-            this.polygon.closePolygon();
-            this.isDrawing = false;
-        } else {
-            this.polygon.addPoint(point);
-        }
+        this.isDrawing = this.polygon
+                            .addPoint({ x: offsetX, y: offsetY }) // ! this syntax might be bad, to check later
+                            .isClosed();
+
         this.draw();
     }
 
@@ -83,6 +78,7 @@ export class Drawer {
         this.ctx.moveTo(points[0].x, points[0].y);
         points.forEach(point => this.ctx.lineTo(point.x, point.y));
         this.ctx.closePath();
+
 
         this.ctx.strokeStyle = color;
         this.ctx.lineWidth = 2;
