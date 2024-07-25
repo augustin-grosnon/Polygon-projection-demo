@@ -17,6 +17,9 @@ export class Drawer {
     handleMouseDown(e) {
         // TODO: handle separate mouse down logic in separate functions
 
+        if (this.polygon.isClosed())
+            return;
+
         const { offsetX, offsetY } = e;
         if (!this.isDrawing) {
             this.polygon.addPoint({ x: offsetX, y: offsetY });
