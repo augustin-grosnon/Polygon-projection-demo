@@ -85,6 +85,11 @@ export class Polygon {
         return this.points.map(p => ({ x: p.x + dx, y: p.y + dy }));
     }
 
+    setPoints(points) {
+        this.points = points;
+        return this;
+    }
+
     contains(point) {
         console.log('check contained point:', point);
 

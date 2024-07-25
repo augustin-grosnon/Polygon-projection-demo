@@ -1,3 +1,5 @@
+import { Polygon } from './Polygon.js';
+
 export class Drawer {
     constructor(canvas, polygon) {
         this.canvas = canvas;
@@ -11,19 +13,36 @@ export class Drawer {
         canvas.addEventListener('mousedown', this.handleMouseDown.bind(this));
         canvas.addEventListener('mousemove', this.handleMouseMove.bind(this));
         canvas.addEventListener('mouseup', this.handleMouseUp.bind(this));
-        canvas.addEventListener('dblclick', this.handleDoubleClick.bind(this));
     }
 
     handleMouseDown(e) {
+        const { offsetX, offsetY } = e;
+        const point = { x: offsetX, y: offsetY };
+
+        this.handlePointPlacement(point);
+        this.handleVectorStart(point);
+        this.draw();
+    }
+
+    handlePointPlacement(point) {
         if (this.polygon.isClosed())
             return;
 
-        const { offsetX, offsetY } = e;
         this.isDrawing = this.polygon
-                            .addPoint({ x: offsetX, y: offsetY }) // ! this syntax might be bad, to check later
+                            .addPoint(point) // ! this syntax might be bad, to check later
                             .isClosed();
+    }
 
-        this.draw();
+    handleVectorStart(point) {
+        if (!this.polygon.isClosed())
+            return;
+
+        if (!this.polygon.contains(point))
+            return;
+
+        this.isDragging = true;
+        this.dragStart = point;
+        this.dragPolygon = new Polygon([...this.polygon.getPoints()]);
     }
 
     handleMouseMove(e) {
@@ -31,45 +50,30 @@ export class Drawer {
         // * -> drawing = display line
         // * -> dragging = full dragging logic and update
 
-        if (this.isDrawing || this.isDragging) {
+        if (this.isDrawing)
+            console.log("placeholder for the line placing");
+
+        if (this.isDragging) {
             const { offsetX, offsetY } = e;
 
-            if (this.isDragging) {
+            if (this.isDragging && this.dragPolygon) {
                 const dx = offsetX - this.dragStart.x;
                 const dy = offsetY - this.dragStart.y;
-                this.dragPolygon = new Polygon(this.polygon.getTranslatedPoints(dx, dy));
+                this.dragPolygon.setPoints(this.polygon.getTranslatedPoints(dx, dy))
             }
 
-            this.draw();
-        }
-    }
-
-    handleMouseUp(e) {
-        if (this.isDragging) {
-            const dx = e.offsetX - this.dragStart.x;
-            const dy = e.offsetY - this.dragStart.y;
-            this.polygon.translate(dx, dy);
-            this.isDragging = false;
-            this.dragPolygon = null;
-
-            // TODO: draw full polygon based on the base and dragged one
+            // TODO: add full polygon based on the base and dragged one
             // ? add method / constructor to polygon class to create based on two polygons?
             // ? add method / constructor to polygon class to only keep the outline of the points? (find adapted algorithm)
             // TODO: save full polygon in the Drawer class
         }
+
         this.draw();
     }
 
-    handleDoubleClick(e) {
-        // ? use normal click instead, and only after the polygon is complete?
-
-        const { offsetX, offsetY } = e;
-
-        if (this.polygon.contains({ x: offsetX, y: offsetY })) {
-            this.isDragging = true;
-            this.dragStart = { x: offsetX, y: offsetY };
-            this.dragPolygon = [...this.polygon.getPoints()];
-        }
+    handleMouseUp(_) {
+        if (this.isDragging)
+            this.isDragging = false;
         this.draw();
     }
 
@@ -78,7 +82,6 @@ export class Drawer {
         this.ctx.moveTo(points[0].x, points[0].y);
         points.forEach(point => this.ctx.lineTo(point.x, point.y));
         this.ctx.closePath();
-
 
         this.ctx.strokeStyle = color;
         this.ctx.lineWidth = 2;
@@ -93,9 +96,9 @@ export class Drawer {
         if (!this.polygon.isDefault())
             this.drawPolygon(this.polygon.getPoints());
 
-        if (this.isDragging && this.dragPolygon) // TODO: draw even after dragging is done (do not remove)
-            this.drawPolygon(this.dragPolygon, 'red'); // TODO: use another color (blue?) or line kind (if possible) -> keep red for the enclosing polygon
+        if (this.dragPolygon)
+            this.drawPolygon(this.dragPolygon.getPoints(), 'blue');
 
-        // TODO: draw enclosing polygon possible
+        // TODO: draw enclosing polygon (red)
     }
 }
