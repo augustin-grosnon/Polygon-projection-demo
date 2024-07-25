@@ -3,7 +3,7 @@ export class Drawer {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
         this.polygon = polygon;
-        this.isDrawing = false;
+        this.isDrawing = true;
         this.isDragging = false;
         this.dragStart = null;
         this.dragPolygon = null;
@@ -21,17 +21,12 @@ export class Drawer {
             return;
 
         const { offsetX, offsetY } = e;
-        if (!this.isDrawing) {
-            this.polygon.addPoint({ x: offsetX, y: offsetY });
-            this.isDrawing = true;
+        const point = { x: offsetX, y: offsetY };
+        if (this.polygon.isClosingPoint(point)) {
+            this.polygon.closePolygon();
+            this.isDrawing = false;
         } else {
-            const point = { x: offsetX, y: offsetY };
-            if (this.polygon.isClosingPoint(point)) {
-                this.polygon.closePolygon();
-                this.isDrawing = false;
-            } else {
-                this.polygon.addPoint(point);
-            }
+            this.polygon.addPoint(point);
         }
         this.draw();
     }
