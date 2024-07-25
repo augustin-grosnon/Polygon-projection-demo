@@ -50,7 +50,7 @@ This project is an interactive tool for visualizing the projection of a convex p
    - Click on the canvas to add points and create a convex polygon. The polygon will automatically close when you click near the starting point.
 
 2. **Moving the polygon**
-   - Double-click inside the polygon to start dragging. Move the mouse to translate a copy of the polygon around the canvas. Release the mouse button to drop the new polygon to it's new location. (WIP)
+   - Click inside a closed polygon to start dragging. Move the mouse to translate a copy of the polygon around the canvas. Release the mouse button to drop the new polygon to it's new location. (WIP)
 
 3. **Resetting**
    - To start over, you can refresh the page (I might add a button in the future).
