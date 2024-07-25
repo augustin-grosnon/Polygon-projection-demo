@@ -1,12 +1,16 @@
 # Polygon projection demo
 
-This project is an interactive tool for visualizing the projection of a convex polygon and it's enclosing polygon using a translation vector. The user can define a convex polygon, move it around using the mouse, and observe the results in real-time.
+This project is an interactive tool for visualizing the projection of a convex polygon and it's enclosing polygon using a translation vector. The user can define a convex polygon, move it around using the mouse, and observe the results in real-time. Several other features are available.
 
 ## Features
 
 - **Draw convex polygon**: Interactively create a convex polygon by clicking on the canvas to set points.
 - **Translate polygon**: Move the polygon around by dragging it.
 - **Real-time updates**: The canvas automatically updates to show the current state of the polygon and its projection.
+- **Auto shape close**: Toggle visual auto-closing of the polygon shape to have a visual clue of how the shape would look like when closed. (*off* by default)
+- **Convex only mode**: Toggle whether the polygon should be convex-only. When enabled, the polygon must remain convex as you add points. Disabling it after drawing a non convex shape might lead to some issues. (*on* by default)
+- **Reset**: Start over by clearing the current polygon and starting with a fresh canvas.
+- **Remove last point**: Remove the most recently added point from the polygon. Disabled when the polygon is closed.
 
 ## Technologies
 
@@ -21,7 +25,7 @@ This project is an interactive tool for visualizing the projection of a convex p
 - `scripts/`: Directory containing JavaScript files:
   - `Polygon.js`: Defines the `Polygon` class with methods to manage polygon points and transformations.
   - `Drawer.js`: Defines the `Drawer` class for handling user interactions and drawing the polygon on the canvas.
-  - `main.js`: Initializes the Drawer and the base Polygon.
+  - `main.js`: Initializes the Drawer, the base Polygon and the listeners.
 
 ## Setup and running the project
 
@@ -52,5 +56,14 @@ This project is an interactive tool for visualizing the projection of a convex p
 2. **Moving the polygon**
    - Click inside a closed polygon to start dragging. Move the mouse to translate a copy of the polygon around the canvas. Release the mouse button to drop the new polygon to it's new location. (WIP)
 
-3. **Resetting**
-   - To start over, you can refresh the page (I might add a button in the future).
+3. **Auto shape close**
+   - Use the "Toggle auto shape close" button to enable or disable visual automatic closing of the polygon.
+
+4. **Convex only mode**
+   - Use the "Toggle convex only" button to switch between convex-only mode and normal mode. In convex-only mode, the polygon must remain convex as you add points.
+
+5. **Resetting**
+   - Click the "Reset" button to clear the current polygon and start with a fresh canvas.
+
+6. **Removing the last point**
+   - Click the "Remove last point" button to remove the most recently added point from the polygon.

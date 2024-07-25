@@ -1,7 +1,20 @@
 import { Polygon } from './Polygon.js';
 import { Drawer } from './Drawer.js';
 
-const drawer = new Drawer(
-  document.getElementById('canvas'),
-  new Polygon()
-);
+const canvas = document.getElementById('canvas');
+const polygon = new Polygon();
+const drawer = new Drawer(canvas, polygon);
+
+canvas.addEventListener('mousedown', drawer.handleMouseDown.bind(drawer));
+canvas.addEventListener('mousemove', drawer.handleMouseMove.bind(drawer));
+canvas.addEventListener('mouseup', drawer.handleMouseUp.bind(drawer));
+
+const toggleCloseButton = document.getElementById('toggleClose');
+const toggleConvexButton = document.getElementById('toggleConvex');
+const resetButton = document.getElementById('reset');
+const removeLastButton = document.getElementById('removeLast');
+
+toggleCloseButton.addEventListener('click', drawer.toggleShouldClosePath.bind(drawer));
+toggleConvexButton.addEventListener('click', drawer.toggleConvexOnly.bind(drawer));
+resetButton.addEventListener('click', drawer.reset.bind(drawer));
+removeLastButton.addEventListener('click', drawer.removeLastPoint.bind(drawer));

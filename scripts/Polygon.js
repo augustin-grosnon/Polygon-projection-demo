@@ -144,8 +144,10 @@ export class Polygon {
   }
 
   removeLastPoint() {
-    if (this.points.length)
+    if (this.points.length && !this.isClosed()) {
       this.points.pop();
+      this.updateState();
+    }
   }
 
   static convexHull(points) {

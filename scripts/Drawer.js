@@ -7,10 +7,6 @@ export class Drawer {
     this.resetValues(polygon);
 
     this.shouldClosePath = false;
-
-    canvas.addEventListener('mousedown', this.handleMouseDown.bind(this));
-    canvas.addEventListener('mousemove', this.handleMouseMove.bind(this));
-    canvas.addEventListener('mouseup', this.handleMouseUp.bind(this));
   }
 
   resetValues(polygon) {
@@ -202,5 +198,24 @@ export class Drawer {
       .drawAllPolygons()
       .drawLineFromLastPointToMouse()
       .drawVector();
+  }
+
+  removeLastPoint() {
+    this.polygon.removeLastPoint();
+    this.draw();
+  }
+
+  toggleConvexOnly() {
+    this.polygon.convexOnly = !this.polygon.convexOnly;
+  }
+
+  toggleShouldClosePath() {
+    this.shouldClosePath = !this.shouldClosePath;
+    this.draw();
+  }
+
+  reset() {
+    this.resetValues(new Polygon());
+    this.draw();
   }
 }
