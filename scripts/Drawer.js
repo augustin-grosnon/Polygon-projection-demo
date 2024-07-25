@@ -99,7 +99,7 @@ export class Drawer {
 
         // TODO: if a line is currently being added, display it (line from the last point to the mouse)
 
-        if (this.polygon.getPoints().length > 0) // TODO: use variable stored in the polygon class instead + a method to get the state of this variable (drawable, for example)
+        if (!this.polygon.isDefault())
             this.drawPolygon(this.polygon.getPoints());
 
         if (this.isDragging && this.dragPolygon) // TODO: draw even after dragging is done (do not remove)

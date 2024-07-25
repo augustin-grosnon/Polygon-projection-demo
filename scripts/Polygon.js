@@ -1,25 +1,36 @@
 export class Polygon {
     constructor(points = []) {
         this.points = points;
-        this.closed = points.length >= 2 && points[0] === points[points.length - 1];
+        this.state = this.updateState();
+    }
+
+    updateState() {
+        const points = this.points;
+
+        if (points.length >= 3 && this.arePointsEqual(points[0], points[points.length - 1]))
+            return "closed";
+        else if (points.length >= 2)
+            return "started";
+        else
+            return "default";
+    }
+
+    arePointsEqual(point1, point2) {
+        return point1.x === point2.x && point1.y === point2.y;
     }
 
     addPoint(point) {
-        if (this.isClosed())
+        if (this.isClosed() || !this.isConvexAfterAdding(point))
             return;
 
-        if (this.points.length < 2) {
-            this.points.push(point);
-            return;
-        }
-
-        if (this.isConvexAfterAdding(point))
-            this.points.push(point);
-        else
-            console.log("polygon is not convex after placing, discarded point", point);
+        this.points.push(point);
+        this.state = this.updateState();
     }
 
     isConvexAfterAdding(point) {
+        if (!this.isStarted())
+            return true;
+
         const newPoints = [...this.points, point];
         const n = newPoints.length;
         let isPositive = null;
@@ -54,7 +65,7 @@ export class Polygon {
         console.log("closing the polygon")
 
         this.points.push(this.points[0]);
-        this.closed = true;
+        this.state = this.updateState();
     }
 
     translate(dx, dy) {
@@ -93,7 +104,7 @@ export class Polygon {
     isClosingPoint(point, threshold = 5) {
         console.log('check if point is closing the polygon:', point);
 
-        if (this.points.length <= 2)
+        if (!this.isStarted())
             return false;
 
         const firstPoint = this.points[0];
@@ -103,7 +114,15 @@ export class Polygon {
         return distance < threshold;
     }
 
+    isDefault() { // ! not very explicit name
+        return this.state === "default";
+    }
+
+    isStarted() { // ! might be possible to find a better name
+        return this.state === "started";
+    }
+
     isClosed() {
-        return this.closed;
+        return this.state === "closed";
     }
 }
