@@ -52,30 +52,48 @@ export class Drawer {
     }
 
     handleMouseMove(e) {
-        // TODO: handle separate mouse movement logic in separate functions
-        // * -> drawing = display line
-        // * -> dragging = full dragging logic and update
-
         const { offsetX, offsetY } = e;
-        this.currentMousePos = { x: offsetX, y: offsetY };
 
-        if (this.isDrawing)
-            console.log('placeholder for the line placing');
+        this
+          .updateMousePos({ x: offsetX, y: offsetY })
+          .updateDraggedPolygonPosition(offsetX, offsetY)
+          .draw();
+    }
 
+    updateMousePos(point) {
+        this.currentMousePos = point;
+
+        return this;
+    }
+
+    updateDraggedPolygonPosition(x, y) {
         if (this.isDragging) {
-            if (this.isDragging && this.dragPolygon && this.dragBase) {
-                const dx = offsetX - this.dragStart.x;
-                const dy = offsetY - this.dragStart.y;
-                this.dragPolygon.setPoints(this.dragBase.getTranslatedPoints(dx, dy))
-            }
-
-            // TODO: add full polygon based on the base and dragged one
-            // ? add method / constructor to polygon class to create based on two polygons?
-            // ? add method / constructor to polygon class to only keep the outline of the points? (find adapted algorithm)
-            // TODO: save full polygon in the Drawer class
+            this
+              .updateDraggedPoints(x, y)
+              .updateEnclosingPolygon()
         }
 
-        this.draw();
+        return this;
+    }
+
+    updateDraggedPoints(x, y) {
+        if (!this.isDragging || !this.dragPolygon || !this.dragBase)
+            return this;
+
+        const dx = x - this.dragStart.x;
+        const dy = y - this.dragStart.y;
+        this.dragPolygon.setPoints(this.dragBase.getTranslatedPoints(dx, dy)) // ! we set the points again each time, there must be a way to avoid this (using translate for example)
+
+        return this;
+    }
+
+    updateEnclosingPolygon() {
+        // TODO: add full polygon based on the base and dragged one
+        // ? add method / constructor to polygon class to create based on two polygons?
+        // ? add method / constructor to polygon class to only keep the outline of the points? (find adapted algorithm)
+        // TODO: save full polygon in the Drawer class
+
+        return this;
     }
 
     handleMouseUp(_) {
