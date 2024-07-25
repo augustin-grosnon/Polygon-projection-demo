@@ -9,6 +9,7 @@ export class Drawer {
         this.isDragging = false;
         this.dragStart = null;
         this.dragPolygon = null;
+        this.dragBase = null;
 
         canvas.addEventListener('mousedown', this.handleMouseDown.bind(this));
         canvas.addEventListener('mousemove', this.handleMouseMove.bind(this));
@@ -21,7 +22,8 @@ export class Drawer {
 
         this
           .handlePointPlacement(point)
-          .handleVectorStart(point)
+          .handleVectorStart(point, this.polygon)
+          .handleVectorStart(point, this.dragPolygon)
           .draw();
     }
 
@@ -36,15 +38,14 @@ export class Drawer {
         return this;
     }
 
-    handleVectorStart(point) {
-        if (!this.polygon.isClosed())
-            return this;
-        if (!this.polygon.contains(point))
+    handleVectorStart(point, polygon) {
+        if (!polygon?.isClosed() || !polygon.contains(point))
             return this;
 
         this.isDragging = true;
         this.dragStart = point;
-        this.dragPolygon = new Polygon([...this.polygon.getPoints()]);
+        this.dragPolygon = new Polygon([...polygon.getPoints()]);
+        this.dragBase = polygon;
 
         return this;
     }
@@ -60,10 +61,10 @@ export class Drawer {
         if (this.isDragging) {
             const { offsetX, offsetY } = e;
 
-            if (this.isDragging && this.dragPolygon) {
+            if (this.isDragging && this.dragPolygon && this.dragBase) {
                 const dx = offsetX - this.dragStart.x;
                 const dy = offsetY - this.dragStart.y;
-                this.dragPolygon.setPoints(this.polygon.getTranslatedPoints(dx, dy))
+                this.dragPolygon.setPoints(this.dragBase.getTranslatedPoints(dx, dy))
             }
 
             // TODO: add full polygon based on the base and dragged one
@@ -76,8 +77,10 @@ export class Drawer {
     }
 
     handleMouseUp(_) {
-        if (this.isDragging)
+        if (this.isDragging) {
             this.isDragging = false;
+            this.dragBase = null;
+        }
         this.draw();
     }
 
