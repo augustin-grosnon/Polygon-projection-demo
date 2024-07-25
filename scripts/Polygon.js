@@ -8,11 +8,13 @@ export class Polygon {
         const points = this.points;
 
         if (points.length >= 3 && this.arePointsEqual(points[0], points[points.length - 1]))
-            this.state = "closed";
+            this.state = 'closed';
         else if (points.length >= 2)
-            this.state = "started";
+            this.state = 'started';
+        else if (points.length == 1)
+            this.state = 'point';
         else
-            this.state = "default";
+            this.state = 'empty';
 
         return this;
     }
@@ -68,7 +70,7 @@ export class Polygon {
         if (this.isClosed())
             return this;
 
-        console.log("closing the polygon")
+        console.log('closing the polygon')
 
         this.points.push(this.points[0]);
         return this.updateState();
@@ -106,7 +108,7 @@ export class Polygon {
                 isInside = !isInside;
         }
 
-        console.log("point is contained:", isInside);
+        console.log('point is contained:', isInside);
         return isInside;
     }
 
@@ -127,15 +129,23 @@ export class Polygon {
         return distance < threshold;
     }
 
-    isDefault() { // ! not very explicit name
-        return this.state === "default";
+    isEmpty() {
+        return this.state === 'empty';
     }
 
-    isStarted() { // ! might be possible to find a better name
-        return this.state === "started";
+    isPoint() {
+        return this.state === 'point'
+    }
+
+    isStarted() {
+        return this.state === 'started';
     }
 
     isClosed() {
-        return this.state === "closed";
+        return this.state === 'closed';
+    }
+
+    getLastPoint() {
+        return this.points.length ? this.points[this.points.length - 1] : null;
     }
 }

@@ -10,6 +10,7 @@ export class Drawer {
         this.dragStart = null;
         this.dragPolygon = null;
         this.dragBase = null;
+        this.currentMousePos = null;
 
         canvas.addEventListener('mousedown', this.handleMouseDown.bind(this));
         canvas.addEventListener('mousemove', this.handleMouseMove.bind(this));
@@ -22,8 +23,8 @@ export class Drawer {
 
         this
           .handlePointPlacement(point)
-          .handleVectorStart(point, this.polygon)
           .handleVectorStart(point, this.dragPolygon)
+          .handleVectorStart(point, this.polygon)
           .draw();
     }
 
@@ -39,7 +40,7 @@ export class Drawer {
     }
 
     handleVectorStart(point, polygon) {
-        if (!polygon?.isClosed() || !polygon.contains(point))
+        if (!polygon?.isClosed() || !polygon.contains(point) || this.isDragging)
             return this;
 
         this.isDragging = true;
@@ -55,12 +56,13 @@ export class Drawer {
         // * -> drawing = display line
         // * -> dragging = full dragging logic and update
 
+        const { offsetX, offsetY } = e;
+        this.currentMousePos = { x: offsetX, y: offsetY };
+
         if (this.isDrawing)
-            console.log("placeholder for the line placing");
+            console.log('placeholder for the line placing');
 
         if (this.isDragging) {
-            const { offsetX, offsetY } = e;
-
             if (this.isDragging && this.dragPolygon && this.dragBase) {
                 const dx = offsetX - this.dragStart.x;
                 const dy = offsetY - this.dragStart.y;
@@ -98,14 +100,28 @@ export class Drawer {
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // TODO: if a line is currently being added, display it (line from the last point to the mouse)
-
-        if (!this.polygon.isDefault())
+        if (!this.polygon.isEmpty())
             this.drawPolygon(this.polygon.getPoints());
 
         if (this.dragPolygon)
             this.drawPolygon(this.dragPolygon.getPoints(), 'blue');
 
+        if (!this.polygon.isEmpty() && !this.polygon.isClosed() && this.currentMousePos)
+            this.drawLineFromLastPointToMouse();
+
         // TODO: draw enclosing polygon (red)
+    }
+
+    drawLineFromLastPointToMouse() {
+        const lastPoint = this.polygon.getLastPoint();
+        if (!lastPoint || !this.currentMousePos)
+            return;
+
+        this.ctx.beginPath();
+        this.ctx.moveTo(lastPoint.x, lastPoint.y);
+        this.ctx.lineTo(this.currentMousePos.x, this.currentMousePos.y);
+        this.ctx.strokeStyle = this.polygon.isConvexAfterAdding({ x: this.currentMousePos.x, y: this.currentMousePos.y }) ? 'gray' : 'red';
+        this.ctx.lineWidth = 1;
+        this.ctx.stroke();
     }
 }
