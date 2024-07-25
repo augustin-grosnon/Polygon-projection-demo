@@ -19,30 +19,34 @@ export class Drawer {
         const { offsetX, offsetY } = e;
         const point = { x: offsetX, y: offsetY };
 
-        this.handlePointPlacement(point);
-        this.handleVectorStart(point);
-        this.draw();
+        this
+          .handlePointPlacement(point)
+          .handleVectorStart(point)
+          .draw();
     }
 
     handlePointPlacement(point) {
         if (this.polygon.isClosed())
-            return;
+            return this;
 
         this.isDrawing = this.polygon
-                            .addPoint(point) // ! this syntax might be bad, to check later
-                            .isClosed();
+                           .addPoint(point)
+                           .isClosed();
+
+        return this;
     }
 
     handleVectorStart(point) {
         if (!this.polygon.isClosed())
-            return;
-
+            return this;
         if (!this.polygon.contains(point))
-            return;
+            return this;
 
         this.isDragging = true;
         this.dragStart = point;
         this.dragPolygon = new Polygon([...this.polygon.getPoints()]);
+
+        return this;
     }
 
     handleMouseMove(e) {

@@ -5,3 +5,5 @@ const drawer = new Drawer(
     document.getElementById('canvas'),
     new Polygon()
 );
+
+// TODO: use 2 space as indentation in whole project
