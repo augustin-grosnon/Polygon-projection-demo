@@ -6,6 +6,9 @@ export class Polygon {
     addPoint(point) {
         console.log('added a point:', point);
         this.points.push(point);
+
+        // TODO: update to force convex polygon
+        // ? if non convex point, move the last one? find another way?
     }
 
     closePolygon() {
