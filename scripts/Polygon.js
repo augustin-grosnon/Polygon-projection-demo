@@ -70,14 +70,11 @@ export class Polygon {
         if (this.isClosed())
             return this;
 
-        console.log('closing the polygon')
-
         this.points.push(this.points[0]);
         return this.updateState();
     }
 
     translate(dx, dy) {
-        console.log('translate', dx, dy);
         this.points = this.getTranslatedPoints(dx, dy)
 
         return this;
@@ -93,8 +90,6 @@ export class Polygon {
     }
 
     contains(point) {
-        console.log('check contained point:', point);
-
         const { x: px, y: py } = point;
         let isInside = false;
 
@@ -108,7 +103,6 @@ export class Polygon {
                 isInside = !isInside;
         }
 
-        console.log('point is contained:', isInside);
         return isInside;
     }
 
@@ -117,8 +111,6 @@ export class Polygon {
     }
 
     isClosingPoint(point, threshold = 5) {
-        console.log('check if point is closing the polygon:', point);
-
         if (!this.isStarted())
             return false;
 

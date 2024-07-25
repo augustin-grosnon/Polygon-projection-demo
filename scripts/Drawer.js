@@ -103,7 +103,7 @@ export class Drawer {
 
         const dx = x - this.dragStart.x;
         const dy = y - this.dragStart.y;
-        this.dragPolygon.setPoints(this.dragBaseCopy.getTranslatedPoints(dx, dy)) // ! we set the points again each time, there must be a way to avoid this (using translate for example)
+        this.dragPolygon.setPoints(this.dragBaseCopy.getTranslatedPoints(dx, dy)) // ! we set the points again each time, there must be a way to avoid this (using translate and some saved values for example)
 
         if (this.dragBaseRef === this.polygon) {
             this.vectorEnd = { x, y };
