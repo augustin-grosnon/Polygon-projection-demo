@@ -4,6 +4,16 @@ export class Drawer {
   constructor(canvas, polygon) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
+    this.resetValues(polygon);
+
+    this.shouldClosePath = false;
+
+    canvas.addEventListener('mousedown', this.handleMouseDown.bind(this));
+    canvas.addEventListener('mousemove', this.handleMouseMove.bind(this));
+    canvas.addEventListener('mouseup', this.handleMouseUp.bind(this));
+  }
+
+  resetValues(polygon) {
     this.polygon = polygon;
     this.isDrawing = true;
     this.isDragging = false;
@@ -16,10 +26,6 @@ export class Drawer {
     this.dragBaseCopy = null;
     this.currentMousePos = null;
     this.enclosingPolygon = null;
-
-    canvas.addEventListener('mousedown', this.handleMouseDown.bind(this));
-    canvas.addEventListener('mousemove', this.handleMouseMove.bind(this));
-    canvas.addEventListener('mouseup', this.handleMouseUp.bind(this));
   }
 
   handleMouseDown(e) {
@@ -138,7 +144,9 @@ export class Drawer {
     this.ctx.beginPath();
     this.ctx.moveTo(points[0].x, points[0].y);
     points.forEach(point => this.ctx.lineTo(point.x, point.y));
-    this.ctx.closePath();
+
+    if (this.shouldClosePath)
+      this.ctx.closePath();
 
     this.ctx.strokeStyle = color;
     this.ctx.lineWidth = 2;

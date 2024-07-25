@@ -2,6 +2,8 @@ export class Polygon {
   constructor(points = []) {
     this.points = points;
     this.updateState();
+
+    this.convexOnly = true;
   }
 
   updateState() {
@@ -36,7 +38,7 @@ export class Polygon {
   }
 
   isConvexAfterAdding(point) {
-    if (!this.isStarted())
+    if (!this.isStarted() || !this.convexOnly)
       return true;
 
     const newPoints = [...this.points, point];
@@ -141,6 +143,11 @@ export class Polygon {
     return this.points.length ? this.points[this.points.length - 1] : null;
   }
 
+  removeLastPoint() {
+    if (this.points.length)
+      this.points.pop();
+  }
+
   static convexHull(points) {
     if (points.length < 3)
       return points;
@@ -154,7 +161,8 @@ export class Polygon {
           hull.pop();
         hull.push(p);
       }
-      hull.pop()
+      if (this.convexOnly)
+        hull.pop()
       return hull;
     };
 
