@@ -48,7 +48,7 @@ export class Polygon {
             const p1 = newPoints[(i + 1) % n];
             const p2 = newPoints[(i + 2) % n];
 
-            const isCurrentPositive = this.crossProduct(p0, p1, p2) > 0;
+            const isCurrentPositive = Polygon.crossProduct(p0, p1, p2) > 0;
             if (isPositive === null)
                 isPositive = isCurrentPositive;
             else if (isCurrentPositive !== isPositive)
@@ -58,7 +58,7 @@ export class Polygon {
         return true;
     }
 
-    crossProduct(p0, p1, p2) {
+    static crossProduct(p0, p1, p2) {
         const dx1 = p1.x - p0.x;
         const dy1 = p1.y - p0.y;
         const dx2 = p2.x - p1.x;
@@ -147,5 +147,25 @@ export class Polygon {
 
     getLastPoint() {
         return this.points.length ? this.points[this.points.length - 1] : null;
+    }
+
+    static convexHull(points) {
+        if (points.length < 3)
+            return points;
+
+        points.sort((a, b) => a.x === b.x ? a.y - b.y : a.x - b.x);
+
+        const buildHull = (points) => {
+            const hull = [];
+            for (let p of points) {
+                while (hull.length >= 2 && Polygon.crossProduct(hull[hull.length - 2], hull[hull.length - 1], p) <= 0)
+                    hull.pop();
+                hull.push(p);
+            }
+            hull.pop()
+            return hull;
+        };
+
+        return buildHull(points).concat(buildHull(points.slice().reverse()));
     }
 }

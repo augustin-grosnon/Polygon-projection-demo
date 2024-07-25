@@ -11,6 +11,7 @@ export class Drawer {
         this.dragPolygon = null;
         this.dragBase = null;
         this.currentMousePos = null;
+        this.enclosingPolygon = null;
 
         canvas.addEventListener('mousedown', this.handleMouseDown.bind(this));
         canvas.addEventListener('mousemove', this.handleMouseMove.bind(this));
@@ -25,6 +26,7 @@ export class Drawer {
           .handlePointPlacement(point)
           .handleVectorStart(point, this.dragPolygon)
           .handleVectorStart(point, this.polygon)
+          .updateEnclosingPolygon()
           .draw();
     }
 
@@ -88,10 +90,8 @@ export class Drawer {
     }
 
     updateEnclosingPolygon() {
-        // TODO: add full polygon based on the base and dragged one
-        // ? add method / constructor to polygon class to create based on two polygons?
-        // ? add method / constructor to polygon class to only keep the outline of the points? (find adapted algorithm)
-        // TODO: save full polygon in the Drawer class
+        if (this.polygon.isClosed() && this.dragPolygon?.isClosed())
+            this.enclosingPolygon = new Polygon(Polygon.convexHull([...this.polygon.getPoints(), ...this.dragPolygon.getPoints()]));
 
         return this;
     }
@@ -120,14 +120,15 @@ export class Drawer {
 
         if (!this.polygon.isEmpty())
             this.drawPolygon(this.polygon.getPoints());
-
         if (this.dragPolygon)
             this.drawPolygon(this.dragPolygon.getPoints(), 'blue');
+        if (this.enclosingPolygon)
+            this.drawPolygon(this.enclosingPolygon.getPoints(), 'red');
 
         if (!this.polygon.isEmpty() && !this.polygon.isClosed() && this.currentMousePos)
             this.drawLineFromLastPointToMouse();
 
-        // TODO: draw enclosing polygon (red)
+        // TODO: draw vector between base and duplicated polygon (green)
     }
 
     drawLineFromLastPointToMouse() {
