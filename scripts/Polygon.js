@@ -238,6 +238,4 @@ export class Polygon {
     }
     this.updateState();
   }
-
-  
 }
