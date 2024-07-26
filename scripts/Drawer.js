@@ -8,6 +8,7 @@ export class Drawer {
 
     this.shouldClosePath = false;
     this.shouldFill = false;
+    this.showPointLabels = false;
   }
 
   resetValues(polygon) {
@@ -154,6 +155,14 @@ export class Drawer {
     this.ctx.strokeStyle = color;
     this.ctx.lineWidth = 2;
     this.ctx.stroke();
+
+    if (this.showPointLabels) {
+      this.ctx.font = '12px Arial';
+      this.ctx.fillStyle = color;
+      points.forEach(point => {
+        this.ctx.fillText(`(${Math.round(point.x)}, ${Math.round(point.y)})`, point.x + 5, point.y - 5);
+      });
+    }
   }
 
   drawAllPolygons() {
@@ -228,6 +237,11 @@ export class Drawer {
     this.draw();
   }
 
+  togglePointLabels() {
+    this.showPointLabels = !this.showPointLabels;
+    this.draw();
+  }
+
   reset() {
     this.resetValues(new Polygon());
     this.draw();
@@ -264,6 +278,7 @@ export class Drawer {
       shouldClosePath: this.shouldClosePath,
       shouldFill: this.shouldFill,
       convexOnly: this.polygon.convexOnly,
+      showPointLabels: this.showPointLabels,
     };
     const data = btoa(JSON.stringify(state));
     const blob = new Blob([data], { type: 'application/json' });
@@ -300,6 +315,7 @@ export class Drawer {
           this.vectorEnd = state.vectorEnd;
           this.shouldClosePath = state.shouldClosePath;
           this.shouldFill = state.shouldFill;
+          this.showPointLabels = state.showPointLabels;
           this.draw();
         };
 
