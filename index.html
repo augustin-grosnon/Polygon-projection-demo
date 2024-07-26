@@ -8,7 +8,7 @@
   <link href="/assets/favicon.ico" rel="icon" type="image/x-icon">
 </head>
 <body>
-  <div id="controls">
+  <div id="topControls">
     <button id="toggleClose">Toggle auto shape close</button>
     <button id="toggleFill">Toggle shape fill</button>
     <button id="toggleConvex">Toggle convex only</button>
@@ -22,6 +22,24 @@
     <button id="svgExport">Export to svg</button>
   </div>
   <canvas id="canvas" width="1500" height="800"></canvas>
+  <div id="colors">
+    <div>
+      <label for="basePolygonColorPicker">Base polygon color:</label>
+      <input type="color" id="basePolygonColorPicker" value="#000000">
+    </div>
+    <div>
+      <label for="dragPolygonColorPicker">Drag polygon color:</label>
+      <input type="color" id="dragPolygonColorPicker" value="#0000FF">
+    </div>
+    <div>
+      <label for="enclosingPolygonColorPicker">Enclosing polygon color:</label>
+      <input type="color" id="enclosingPolygonColorPicker" value="#FF0000">
+    </div>
+    <div>
+      <label for="vectorColorPicker">Vector color:</label>
+      <input type="color" id="vectorColorPicker" value="#00FF00">
+    </div>
+  </div>
   <script type="module" src="scripts/main.js"></script>
 </body>
 </html>

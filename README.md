@@ -18,6 +18,7 @@ This project is an interactive tool for visualizing the projection of a convex p
 - **Save**: Save the current state in a `.sav` file.
 - **Load**: Load a `.sav` file save.
 - **Export to svg**: Export the canvas to a `.svg` file.
+- **Select colors**: Select colors for each polygon and the vector.
 
 ## Technologies
 
@@ -95,3 +96,6 @@ This project is an interactive tool for visualizing the projection of a convex p
 
 13. **Export to svg**
    - Export the canvas to a `.svg` file by clicking on the "Export to svg" button and entering a name. It will only work with at least a completed base polygon.
+
+14. **Select colors**
+   - Use the pickers at the bottom of the canvas to select the appropriate color for each polygon and the vector.

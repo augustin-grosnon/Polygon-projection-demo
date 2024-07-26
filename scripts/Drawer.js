@@ -9,12 +9,37 @@ export class Drawer {
     this.shouldClosePath = false;
     this.shouldFill = false;
     this.showPointLabels = false;
+
+    document.getElementById('basePolygonColorPicker').addEventListener('change', (event) => {
+      this.basePolygonColor = event.target.value;
+      this.draw();
+    });
+
+    document.getElementById('dragPolygonColorPicker').addEventListener('change', (event) => {
+      this.dragPolygonColor = event.target.value;
+      this.draw();
+    });
+
+    document.getElementById('enclosingPolygonColorPicker').addEventListener('change', (event) => {
+      this.enclosingPolygonColor = event.target.value;
+      this.draw();
+    });
+
+    document.getElementById('vectorColorPicker').addEventListener('change', (event) => {
+      this.vectorColor = event.target.value;
+      this.draw();
+    });
   }
 
   resetValues(polygon) {
     this.polygon = polygon;
     this.isDragging = false;
     this.resetDragValues();
+
+    this.basePolygonColor = '#000000';
+    this.dragPolygonColor = '#0000FF';
+    this.enclosingPolygonColor = '#FF0000';
+    this.vectorColor = '#00FF00';
   }
 
   resetDragValues() {
@@ -165,15 +190,33 @@ export class Drawer {
     }
   }
 
+  static hexToRgba(hex, opacity) {
+    const val = parseInt(hex.slice(1), 16);
+    const r = (val >> 16) & 255;
+    const g = (val >> 8) & 255;
+    const b = val & 255;
+    return `rgba(${r},${g},${b},${opacity})`;
+  }
+
   drawAllPolygons() {
     if (!this.polygon.isEmpty())
-      this.drawPolygon(this.polygon.getPoints(), 'black', this.shouldFill ? 'rgba(0, 0, 0, 0.5)' : null);
+      this.drawPolygon(
+        this.polygon.getPoints(),
+        this.basePolygonColor,
+        this.shouldFill ? Drawer.hexToRgba(this.basePolygonColor, 0.5) : null
+      );
     if (this.dragPolygon)
-      this.drawPolygon(this.dragPolygon.getPoints(), 'blue', this.shouldFill ? 'rgba(0, 0, 255, 0.5)' : null);
+      this.drawPolygon(
+        this.dragPolygon.getPoints(),
+        this.dragPolygonColor,
+        this.shouldFill ? Drawer.hexToRgba(this.dragPolygonColor, 0.5) : null
+      );
     if (this.enclosingPolygon)
-      this.drawPolygon(this.enclosingPolygon.getPoints(), 'red', this.shouldFill ? 'rgba(255, 0, 0, 0.5)' : null);
-
-    // TODO: set the color inside of the polygon instead (+ add related methods)
+      this.drawPolygon(
+        this.enclosingPolygon.getPoints(),
+        this.enclosingPolygonColor,
+        this.shouldFill ? Drawer.hexToRgba(this.enclosingPolygonColor, 0.5) : null
+      );
 
     return this;
   }
@@ -202,7 +245,7 @@ export class Drawer {
     this.ctx.beginPath();
     this.ctx.moveTo(this.vectorStart.x, this.vectorStart.y);
     this.ctx.lineTo(this.vectorEnd.x, this.vectorEnd.y);
-    this.ctx.strokeStyle = 'green';
+    this.ctx.strokeStyle = this.vectorColor;
     this.ctx.lineWidth = 1;
     this.ctx.setLineDash([5, 5]);
     this.ctx.stroke();
@@ -279,6 +322,10 @@ export class Drawer {
       shouldFill: this.shouldFill,
       convexOnly: this.polygon.convexOnly,
       showPointLabels: this.showPointLabels,
+      basePolygonColor: this.basePolygonColor,
+      dragPolygonColor: this.dragPolygonColor,
+      enclosingPolygonColor: this.enclosingPolygonColor,
+      vectorColor: this.vectorColor,
     };
     const data = btoa(JSON.stringify(state));
     const blob = new Blob([data], { type: 'application/json' });
@@ -316,6 +363,10 @@ export class Drawer {
           this.shouldClosePath = state.shouldClosePath;
           this.shouldFill = state.shouldFill;
           this.showPointLabels = state.showPointLabels;
+          this.basePolygonColor = state.basePolygonColor || '#000000';
+          this.dragPolygonColor = state.dragPolygonColor || '#0000FF';
+          this.enclosingPolygonColor = state.enclosingPolygonColor || '#FF0000';
+          this.vectorColor = state.vectorColor || '#00FF00';
           this.draw();
         };
 
@@ -340,9 +391,9 @@ export class Drawer {
 
     let svgContent = `
       <svg xmlns="http://www.w3.org/2000/svg" width="${this.canvas.width}" height="${this.canvas.height}">
-        ${!this.polygon.isEmpty() ? createSvgPolygon(this.polygon.getPoints(), this.shouldFill ? 'rgba(0, 0, 0, 0.5)' : null, 'black') : ''}
-        ${this.dragPolygon ? createSvgPolygon(this.dragPolygon.getPoints(), this.shouldFill ? 'rgba(0, 0, 255, 0.5)' : null, 'blue') : ''}
-        ${this.enclosingPolygon ? createSvgPolygon(this.enclosingPolygon.getPoints(), this.shouldFill ? 'rgba(255, 0, 0, 0.5)' : null, 'red') : ''}
+        ${!this.polygon.isEmpty() ? createSvgPolygon(this.polygon.getPoints(), this.shouldFill ? Drawer.hexToRgba(this.basePolygonColor, 0.5) : null, this.basePolygonColor) : ''}
+        ${this.dragPolygon ? createSvgPolygon(this.dragPolygon.getPoints(), this.shouldFill ? Drawer.hexToRgba(this.dragPolygonColor, 0.5) : null, this.dragPolygonColor) : ''}
+        ${this.enclosingPolygon ? createSvgPolygon(this.enclosingPolygon.getPoints(), this.shouldFill ? Drawer.hexToRgba(this.enclosingPolygonColor, 0.5) : null, this.enclosingPolygonColor) : ''}
       </svg>
     `;
 
