@@ -232,4 +232,44 @@ export class Drawer {
   redo() {
     this.polygon.redo();
   }
+
+  save() {
+    const filename = prompt('Enter filename');
+    if (!filename)
+      return;
+
+    const data = JSON.stringify(this.polygon.getPoints());
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${filename}.sav`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  load() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.sav';
+    document.body.appendChild(input);
+
+    input.addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const points = JSON.parse(event.target.result);
+          this.polygon.setPoints(points);
+        };
+        reader.readAsText(file);
+      }
+      document.body.removeChild(input);
+    });
+
+    input.click();
+  }
 }

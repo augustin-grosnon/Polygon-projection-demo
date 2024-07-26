@@ -100,6 +100,7 @@ export class Polygon {
 
   setPoints(points) {
     this.points = points;
+    this.updateState();
     return this;
   }
 

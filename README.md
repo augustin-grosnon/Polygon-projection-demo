@@ -13,6 +13,8 @@ This project is an interactive tool for visualizing the projection of a convex p
 - **Remove last point**: Remove the most recently added point from the polygon. Disabled when the polygon is closed.
 - **Undo**: Undo an action.
 - **Redo**: Redo an action removed by the `undo` button.
+- **Save**: Save the current state in a .sav file.
+- **Load**: Load a .sav file save.
 
 ## Technologies
 
@@ -75,3 +77,9 @@ This project is an interactive tool for visualizing the projection of a convex p
 
 8. **Redo an action**
    - Redo any action removed by the "Undo" button by clicking on the "Redo" button.
+
+9. **Save to a file**
+   - Save the current canvas to a .sav file by clicking on the "Save" button and entering the name.
+
+10. **Load from a file**
+    - Load a save onto the canvas by clicking on the "Load" button and selecting the save file using a file explorer.

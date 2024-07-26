@@ -15,6 +15,8 @@ const resetButton = document.getElementById('reset');
 const removeLastButton = document.getElementById('removeLast');
 const undoButton = document.getElementById('undo');
 const redoButton = document.getElementById('redo');
+const saveButton = document.getElementById('save');
+const loadButton = document.getElementById('load');
 
 toggleCloseButton.addEventListener('click', drawer.toggleShouldClosePath.bind(drawer));
 toggleConvexButton.addEventListener('click', drawer.toggleConvexOnly.bind(drawer));
@@ -22,3 +24,5 @@ resetButton.addEventListener('click', drawer.reset.bind(drawer));
 removeLastButton.addEventListener('click', drawer.removeLastPoint.bind(drawer));
 undoButton.addEventListener('click', drawer.undo.bind(drawer));
 redoButton.addEventListener('click', drawer.redo.bind(drawer));
+saveButton.addEventListener('click', drawer.save.bind(drawer));
+loadButton.addEventListener('click', drawer.load.bind(drawer));
