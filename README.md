@@ -79,7 +79,7 @@ This project is an interactive tool for visualizing the projection of a convex p
    - Redo any action removed by the "Undo" button by clicking on the "Redo" button.
 
 9. **Save to a file**
-   - Save the current canvas to a .sav file by clicking on the "Save" button and entering the name.
+   - Save the current canvas and some parameters to a .sav file by clicking on the "Save" button and entering the name.
 
 10. **Load from a file**
     - Load a save onto the canvas by clicking on the "Load" button and selecting the save file using a file explorer.

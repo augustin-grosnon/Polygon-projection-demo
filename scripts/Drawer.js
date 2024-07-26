@@ -227,10 +227,14 @@ export class Drawer {
 
     if (closed && !this.polygon.isClosed())
       this.resetDragValues();
+
+    this.draw();
   }
 
   redo() {
     this.polygon.redo();
+
+    this.draw();
   }
 
   save() {
@@ -238,7 +242,16 @@ export class Drawer {
     if (!filename)
       return;
 
-    const data = JSON.stringify(this.polygon.getPoints());
+    const state = {
+      polygon: this.polygon.getPoints(),
+      dragPolygon: this.dragPolygon ? this.dragPolygon.getPoints() : null,
+      enclosingPolygon: this.enclosingPolygon ? this.enclosingPolygon.getPoints() : null,
+      vectorStart: this.vectorStart,
+      vectorEnd: this.vectorEnd,
+      shouldClosePath: this.shouldClosePath,
+      convexOnly: this.polygon.convexOnly
+    };
+    const data = btoa(JSON.stringify(state));
     const blob = new Blob([data], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
 
@@ -261,10 +274,20 @@ export class Drawer {
       const file = event.target.files[0];
       if (file) {
         const reader = new FileReader();
+
         reader.onload = (event) => {
-          const points = JSON.parse(event.target.result);
-          this.polygon.setPoints(points);
+          const data = atob(event.target.result);
+          const state = JSON.parse(data);
+          this.polygon = new Polygon(state.polygon);
+          this.polygon.convexOnly = state.convexOnly;
+          this.dragPolygon = state.dragPolygon ? new Polygon(state.dragPolygon) : null;
+          this.enclosingPolygon = state.enclosingPolygon ? new Polygon(state.enclosingPolygon) : null;
+          this.vectorStart = state.vectorStart;
+          this.vectorEnd = state.vectorEnd;
+          this.shouldClosePath = state.shouldClosePath;
+          this.draw();
         };
+
         reader.readAsText(file);
       }
       document.body.removeChild(input);
