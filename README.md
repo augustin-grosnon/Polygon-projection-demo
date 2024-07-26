@@ -8,6 +8,7 @@ This project is an interactive tool for visualizing the projection of a convex p
 - **Translate polygon**: Move the polygon around by dragging it.
 - **Real-time updates**: The canvas automatically updates to show the current state of the polygon and its projection.
 - **Auto shape close**: Toggle visual auto-closing of the polygon shape to have a visual clue of how the shape would look like when closed. (*off* by default)
+- **Filled polygon**: Toggle filled version for the polygons.
 - **Convex only mode**: Toggle whether the polygon should be convex-only. When enabled, the polygon must remain convex as you add points. Disabling it after drawing a non convex shape might lead to some issues. (*on* by default)
 - **Reset**: Start over by clearing the current polygon and starting with a fresh canvas.
 - **Remove last point**: Remove the most recently added point from the polygon. Disabled when the polygon is closed.
@@ -63,23 +64,26 @@ This project is an interactive tool for visualizing the projection of a convex p
 3. **Auto shape close**
    - Use the "Toggle auto shape close" button to enable or disable visual automatic closing of the polygon.
 
-4. **Convex only mode**
+4. **Fill mode**
+   - Use the "Toggle shape fill" button to fill the polygons.
+
+5. **Convex only mode**
    - Use the "Toggle convex only" button to switch between convex-only mode and normal mode. In convex-only mode, the polygon must remain convex as you add points.
 
-5. **Resetting**
+6. **Resetting**
    - Click the "Reset" button to clear the current polygon and start with a fresh canvas.
 
-6. **Removing the last point**
+7. **Removing the last point**
    - Click the "Remove last point" button to remove the most recently added point from the polygon.
 
-7. **Undo an action**
+8. **Undo an action**
    - Undo any action from the draw phase by clicking the "Undo" button. You can also use it to remove the last closing point.
 
-8. **Redo an action**
+9. **Redo an action**
    - Redo any action removed by the "Undo" button by clicking on the "Redo" button.
 
-9. **Save to a file**
+10. **Save to a file**
    - Save the current canvas and some parameters to a .sav file by clicking on the "Save" button and entering the name.
 
-10. **Load from a file**
-    - Load a save onto the canvas by clicking on the "Load" button and selecting the save file using a file explorer.
+11. **Load from a file**
+   - Load a save onto the canvas by clicking on the "Load" button and selecting the save file using a file explorer.

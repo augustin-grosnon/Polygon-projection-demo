@@ -10,6 +10,7 @@ canvas.addEventListener('mousemove', drawer.handleMouseMove.bind(drawer));
 canvas.addEventListener('mouseup', drawer.handleMouseUp.bind(drawer));
 
 const toggleCloseButton = document.getElementById('toggleClose');
+const toggleFillButton = document.getElementById('toggleFill');
 const toggleConvexButton = document.getElementById('toggleConvex');
 const resetButton = document.getElementById('reset');
 const removeLastButton = document.getElementById('removeLast');
@@ -19,6 +20,7 @@ const saveButton = document.getElementById('save');
 const loadButton = document.getElementById('load');
 
 toggleCloseButton.addEventListener('click', drawer.toggleShouldClosePath.bind(drawer));
+toggleFillButton.addEventListener('click', drawer.toggleFill.bind(drawer));
 toggleConvexButton.addEventListener('click', drawer.toggleConvexOnly.bind(drawer));
 resetButton.addEventListener('click', drawer.reset.bind(drawer));
 removeLastButton.addEventListener('click', drawer.removeLastPoint.bind(drawer));

@@ -7,6 +7,7 @@ export class Drawer {
     this.resetValues(polygon);
 
     this.shouldClosePath = false;
+    this.shouldFill = false;
   }
 
   resetValues(polygon) {
@@ -137,13 +138,18 @@ export class Drawer {
     this.draw();
   }
 
-  drawPolygon(points, color = 'black') {
+  drawPolygon(points, color = 'black', fillColor = null) {
     this.ctx.beginPath();
     this.ctx.moveTo(points[0].x, points[0].y);
     points.forEach(point => this.ctx.lineTo(point.x, point.y));
 
     if (this.shouldClosePath)
       this.ctx.closePath();
+
+    if (fillColor) {
+      this.ctx.fillStyle = fillColor;
+      this.ctx.fill();
+    }
 
     this.ctx.strokeStyle = color;
     this.ctx.lineWidth = 2;
@@ -152,11 +158,13 @@ export class Drawer {
 
   drawAllPolygons() {
     if (!this.polygon.isEmpty())
-      this.drawPolygon(this.polygon.getPoints());
+      this.drawPolygon(this.polygon.getPoints(), 'black', this.shouldFill ? 'rgba(0, 0, 0, 0.5)' : null);
     if (this.dragPolygon)
-      this.drawPolygon(this.dragPolygon.getPoints(), 'blue');
+      this.drawPolygon(this.dragPolygon.getPoints(), 'blue', this.shouldFill ? 'rgba(0, 0, 255, 0.5)' : null);
     if (this.enclosingPolygon)
-      this.drawPolygon(this.enclosingPolygon.getPoints(), 'red');
+      this.drawPolygon(this.enclosingPolygon.getPoints(), 'red', this.shouldFill ? 'rgba(255, 0, 0, 0.5)' : null);
+
+    // TODO: set the color inside of the polygon instead (+ add related methods)
 
     return this;
   }
@@ -215,6 +223,11 @@ export class Drawer {
     this.draw();
   }
 
+  toggleFill() {
+    this.shouldFill = !this.shouldFill;
+    this.draw();
+  }
+
   reset() {
     this.resetValues(new Polygon());
     this.draw();
@@ -249,7 +262,8 @@ export class Drawer {
       vectorStart: this.vectorStart,
       vectorEnd: this.vectorEnd,
       shouldClosePath: this.shouldClosePath,
-      convexOnly: this.polygon.convexOnly
+      shouldFill: this.shouldFill,
+      convexOnly: this.polygon.convexOnly,
     };
     const data = btoa(JSON.stringify(state));
     const blob = new Blob([data], { type: 'application/json' });
@@ -285,6 +299,7 @@ export class Drawer {
           this.vectorStart = state.vectorStart;
           this.vectorEnd = state.vectorEnd;
           this.shouldClosePath = state.shouldClosePath;
+          this.shouldFill = state.shouldFill;
           this.draw();
         };
 
