@@ -9,6 +9,7 @@ export class Drawer {
     this.shouldClosePath = false;
     this.shouldFill = false;
     this.showPointLabels = false;
+    this.dragBasePolygon = false;
 
     document.getElementById('basePolygonColorPicker').addEventListener('change', (event) => {
       this.basePolygonColor = event.target.value;
@@ -46,7 +47,7 @@ export class Drawer {
     this.dragStart = null;
     this.vectorStart = null;
     this.vectorEnd = null;
-    this.vectorEndSave = null;
+    this.vectorSave = null;
     this.dragPolygon = null;
     this.dragBaseRef = null;
     this.dragBaseCopy = null;
@@ -76,19 +77,22 @@ export class Drawer {
   }
 
   handleVectorStart(point, polygon) {
-    if (!polygon?.isClosed() || !polygon.contains(point) || this.isDragging)
+    if (!polygon?.isClosed() || !polygon.contains(point) || this.isDragging || (this.dragBasePolygon && polygon === this.dragPolygon))
       return this;
 
     this.isDragging = true;
     this.dragStart = point;
-    if (polygon === this.polygon) {
+
+    if (polygon === this.polygon && !this.dragBasePolygon) {
       this.vectorStart = point;
       this.vectorEnd = point;
     } else {
-      this.vectorEndSave = this.vectorEnd;
+      this.vectorSave = this.dragBasePolygon ? this.vectorStart : this.vectorEnd;
     }
+
     if (!this.dragPolygon)
       this.dragPolygon = new Polygon([...polygon.getPoints()]);
+
     this.dragBaseRef = polygon;
     this.dragBaseCopy = new Polygon([...polygon.getPoints()]);
 
@@ -122,26 +126,41 @@ export class Drawer {
     return this;
   }
 
+  // ! might split later for clarity
   updateDraggedPoints(x, y) {
     if (!this.isDragging ||
-      !this.dragPolygon ||
-      !this.dragBaseRef ||
       !this.dragBaseCopy ||
-      !this.dragStart ||
-      !this.vectorEnd)
+      !this.dragStart)
       return this;
 
     const dx = x - this.dragStart.x;
     const dy = y - this.dragStart.y;
-    this.dragPolygon.setPoints(this.dragBaseCopy.getTranslatedPoints(dx, dy)) // ! we set the points again each time, there must be a way to avoid this (using translate and some saved values for example)
+    const newPoints = this.dragBaseCopy.getTranslatedPoints(dx, dy);
 
-    if (this.dragBaseRef === this.polygon) {
-      this.vectorEnd = { x, y };
-    } else if (this.dragBaseRef === this.dragPolygon && this.vectorEndSave) {
-      this.vectorEnd = {
-        x: this.vectorEndSave.x + dx,
-        y: this.vectorEndSave.y + dy
+    if (this.dragBasePolygon) {
+      this.polygon.setPoints(newPoints);
+
+      if (!this.vectorStart || !this.vectorSave)
+        return this;
+
+      this.vectorStart = {
+        x: this.vectorSave.x + dx,
+        y: this.vectorSave.y + dy
       };
+    } else {
+      this.dragPolygon.setPoints(newPoints);
+
+      if (!this.vectorEnd || !this.dragBaseRef || !this.dragPolygon)
+        return this;
+
+      if (this.dragBaseRef === this.polygon) {
+        this.vectorEnd = { x, y };
+      } else if (this.dragBaseRef === this.dragPolygon && this.vectorSave) {
+        this.vectorEnd = {
+          x: this.vectorSave.x + dx,
+          y: this.vectorSave.y + dy
+        };
+      }
     }
 
     return this;
@@ -159,7 +178,7 @@ export class Drawer {
       this.isDragging = false;
       this.dragBaseRef = null;
       this.dragBaseCopy = null;
-      this.vectorEndSave = null;
+      this.vectorSave = null;
     }
     this.draw();
   }
@@ -285,6 +304,10 @@ export class Drawer {
     this.draw();
   }
 
+  toggleDragBasePolygon() {
+    this.dragBasePolygon = !this.dragBasePolygon;
+  }
+
   reset() {
     this.resetValues(new Polygon());
     this.draw();
@@ -326,6 +349,7 @@ export class Drawer {
       dragPolygonColor: this.dragPolygonColor,
       enclosingPolygonColor: this.enclosingPolygonColor,
       vectorColor: this.vectorColor,
+      dragBasePolygon: this.dragBasePolygon,
     };
     const data = btoa(JSON.stringify(state));
     const blob = new Blob([data], { type: 'application/json' });
@@ -363,6 +387,7 @@ export class Drawer {
           this.shouldClosePath = state.shouldClosePath;
           this.shouldFill = state.shouldFill;
           this.showPointLabels = state.showPointLabels;
+          this.dragBasePolygon = state.dragBasePolygon;
           this.basePolygonColor = state.basePolygonColor || '#000000';
           this.dragPolygonColor = state.dragPolygonColor || '#0000FF';
           this.enclosingPolygonColor = state.enclosingPolygonColor || '#FF0000';

@@ -101,6 +101,9 @@ export class Polygon {
   setPoints(points) {
     this.points = points;
     this.updateState();
+
+    // TODO: add undo / redo action for setting spoints
+
     return this;
   }
 

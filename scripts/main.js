@@ -20,6 +20,7 @@ const redoButton = document.getElementById('redo');
 const saveButton = document.getElementById('save');
 const loadButton = document.getElementById('load');
 const svgExportButton = document.getElementById('svgExport');
+const toggleDragBasePolygonButton = document.getElementById('toggleDragBasePolygon');
 
 toggleCloseButton.addEventListener('click', drawer.toggleShouldClosePath.bind(drawer));
 toggleFillButton.addEventListener('click', drawer.toggleFill.bind(drawer));
@@ -32,3 +33,4 @@ redoButton.addEventListener('click', drawer.redo.bind(drawer));
 saveButton.addEventListener('click', drawer.save.bind(drawer));
 loadButton.addEventListener('click', drawer.load.bind(drawer));
 svgExportButton.addEventListener('click', drawer.exportToSvg.bind(drawer));
+toggleDragBasePolygonButton.addEventListener('click', drawer.toggleDragBasePolygon.bind(drawer));

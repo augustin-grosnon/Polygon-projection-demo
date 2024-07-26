@@ -19,6 +19,7 @@ This project is an interactive tool for visualizing the projection of a convex p
 - **Load**: Load a `.sav` file save.
 - **Export to svg**: Export the canvas to a `.svg` file.
 - **Select colors**: Select colors for each polygon and the vector.
+- **Drag base polygon**: Toggle to drag the base polygon instead of the copy.
 
 ## Technologies
 
@@ -65,16 +66,16 @@ This project is an interactive tool for visualizing the projection of a convex p
    - Click inside a closed polygon to start dragging. Move the mouse to translate a copy of the polygon around the canvas. Release the mouse button to drop the new polygon to it's new location. (WIP)
 
 3. **Auto shape close**
-   - Use the "Toggle auto shape close" button to enable or disable visual automatic closing of the polygon.
+   - Use the "Auto shape close" button to enable or disable visual automatic closing of the polygon.
 
 4. **Fill mode**
-   - Use the "Toggle shape fill" button to fill the polygons.
+   - Use the "Fill shape" button to fill the polygons.
 
 5. **Convex only mode**
-   - Use the "Toggle convex only" button to switch between convex-only mode and normal mode. In convex-only mode, the polygon must remain convex as you add points.
+   - Use the "Convex only" button to switch between convex-only mode and normal mode. In convex-only mode, the polygon must remain convex as you add points.
 
 6. **Show point labels**
-   - Use the "Toggle point labels" button to display or not the coordinates of each point.
+   - Use the "Point labels" button to display or not the coordinates of each point.
 
 7. **Resetting**
    - Click the "Reset" button to clear the current polygon and start with a fresh canvas.
@@ -99,3 +100,6 @@ This project is an interactive tool for visualizing the projection of a convex p
 
 14. **Select colors**
    - Use the pickers at the bottom of the canvas to select the appropriate color for each polygon and the vector.
+
+15. **Drag base polygon**
+   - Click on the "Drag base polygon" button to drag the base polygon instead of the copy. It will save the current vector.
