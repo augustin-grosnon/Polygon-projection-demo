@@ -14,8 +14,9 @@ This project is an interactive tool for visualizing the projection of a convex p
 - **Remove last point**: Remove the most recently added point from the polygon. Disabled when the polygon is closed.
 - **Undo**: Undo an action.
 - **Redo**: Redo an action removed by the `undo` button.
-- **Save**: Save the current state in a .sav file.
-- **Load**: Load a .sav file save.
+- **Save**: Save the current state in a `.sav` file.
+- **Load**: Load a `.sav` file save.
+- **Export to svg**: Export the canvas to a `.svg` file.
 
 ## Technologies
 
@@ -83,7 +84,10 @@ This project is an interactive tool for visualizing the projection of a convex p
    - Redo any action removed by the "Undo" button by clicking on the "Redo" button.
 
 10. **Save to a file**
-   - Save the current canvas and some parameters to a .sav file by clicking on the "Save" button and entering the name.
+   - Save the current canvas and some parameters to a `.sav` file by clicking on the "Save" button and entering the name.
 
 11. **Load from a file**
    - Load a save onto the canvas by clicking on the "Load" button and selecting the save file using a file explorer.
+
+12. **Export to svg**
+   - Export the canvas to a `.svg` file by clicking on the "Export to svg" button and entering a name. It will only work with at least a completed base polygon.

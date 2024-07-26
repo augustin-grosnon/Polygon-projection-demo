@@ -310,4 +310,38 @@ export class Drawer {
 
     input.click();
   }
+
+  exportToSvg() {
+    if (!this.polygon.isClosed()) {
+      alert('The base polygon must be closed to export as SVG.');
+      return;
+    }
+
+    const createSvgPolygon = (points, fillColor, strokeColor) => {
+      const pointsAttr = points.map(point => `${point.x},${point.y}`).join(' ');
+      return `<polygon points="${pointsAttr}" fill="${fillColor || 'none'}" stroke="${strokeColor || 'black'}" stroke-width="2"/>`;
+    };
+
+    let svgContent = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="${this.canvas.width}" height="${this.canvas.height}">
+        ${!this.polygon.isEmpty() ? createSvgPolygon(this.polygon.getPoints(), this.shouldFill ? 'rgba(0, 0, 0, 0.5)' : null, 'black') : ''}
+        ${this.dragPolygon ? createSvgPolygon(this.dragPolygon.getPoints(), this.shouldFill ? 'rgba(0, 0, 255, 0.5)' : null, 'blue') : ''}
+        ${this.enclosingPolygon ? createSvgPolygon(this.enclosingPolygon.getPoints(), this.shouldFill ? 'rgba(255, 0, 0, 0.5)' : null, 'red') : ''}
+      </svg>
+    `;
+
+    const filename = prompt('Enter filename for SVG');
+    if (!filename)
+      return;
+
+    const blob = new Blob([svgContent], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${filename}.svg`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
 }
