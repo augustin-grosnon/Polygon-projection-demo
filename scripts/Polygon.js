@@ -4,6 +4,9 @@ export class Polygon {
     this.updateState();
 
     this.convexOnly = true;
+
+    this.undoStack = [];
+    this.redoStack = [];
   }
 
   updateState() {
@@ -32,6 +35,9 @@ export class Polygon {
       return this.close();
     if (!this.isConvexAfterAdding(point))
       return this;
+
+    this.undoStack.push({ action: 'add', point: { ...point } });
+    this.redoStack = [];
 
     this.points.push(point);
     return this.updateState();
@@ -72,12 +78,18 @@ export class Polygon {
     if (this.isClosed())
       return this;
 
+    this.undoStack.push({ action: 'close' });
+    this.redoStack = [];
+
     this.points.push(this.points[0]);
     return this.updateState();
   }
 
   translate(dx, dy) {
     this.points = this.getTranslatedPoints(dx, dy)
+
+    this.undoStack.push({ action: 'translate', dx: -dx, dy: -dy });
+    this.redoStack = [];
 
     return this;
   }
@@ -145,6 +157,9 @@ export class Polygon {
 
   removeLastPoint() {
     if (this.points.length && !this.isClosed()) {
+      this.undoStack.push({ action: 'remove', point: { ...this.points[this.points.length - 1] } });
+      this.redoStack = [];
+
       this.points.pop();
       this.updateState();
     }
@@ -169,5 +184,57 @@ export class Polygon {
     };
 
     return buildHull(points).concat(buildHull(points.slice().reverse()));
+  }
+
+  undo() {
+    if (!this.undoStack.length)
+      return;
+
+    const lastAction = this.undoStack.pop();
+    switch (lastAction.action) {
+      case 'add':
+        this.redoStack.push({ action: 'add', point: { ...this.points[this.points.length - 1] } });
+        this.points.pop();
+        break;
+      case 'remove':
+        this.redoStack.push({ action: 'remove', point: { ...lastAction.point } });
+        this.points.push(lastAction.point);
+        break;
+      case 'translate':
+        this.redoStack.push({ action: 'translate', dx: -lastAction.dx, dy: -lastAction.dy });
+        this.points = this.getTranslatedPoints(lastAction.dx, lastAction.dy);
+        break;
+      case 'close':
+        this.redoStack.push({ action: 'close' });
+        this.points.pop();
+        break;
+    }
+    this.updateState();
+  }
+
+  redo() {
+    if (!this.redoStack.length)
+      return;
+
+    const lastAction = this.redoStack.pop();
+    switch (lastAction.action) {
+      case 'add':
+        this.undoStack.push({ action: 'add', point: { ...lastAction.point } });
+        this.points.push(lastAction.point);
+        break;
+      case 'remove':
+        this.undoStack.push({ action: 'remove', point: { ...this.points[this.points.length - 1] } });
+        this.points.pop();
+        break;
+      case 'translate':
+        this.undoStack.push({ action: 'translate', dx: -lastAction.dx, dy: -lastAction.dy });
+        this.points = this.getTranslatedPoints(lastAction.dx, lastAction.dy);
+        break;
+      case 'close':
+        this.undoStack.push({ action: 'close' });
+        this.points.push(this.points[0]);
+        break;
+    }
+    this.updateState();
   }
 }

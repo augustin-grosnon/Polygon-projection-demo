@@ -11,8 +11,11 @@ export class Drawer {
 
   resetValues(polygon) {
     this.polygon = polygon;
-    this.isDrawing = true;
     this.isDragging = false;
+    this.resetDragValues();
+  }
+
+  resetDragValues() {
     this.dragStart = null;
     this.vectorStart = null;
     this.vectorEnd = null;
@@ -40,9 +43,7 @@ export class Drawer {
     if (this.polygon.isClosed())
       return this;
 
-    this.isDrawing = !this.polygon
-                      .addPoint(point)
-                      .isClosed();
+    this.polygon.addPoint(point);
 
     return this;
   }
@@ -161,7 +162,7 @@ export class Drawer {
   }
 
   drawLineFromLastPointToMouse() {
-    if (this.polygon.isEmpty() || !this.isDrawing || !this.currentMousePos)
+    if (this.polygon.isEmpty() || this.polygon.isClosed() || !this.currentMousePos)
       return this;
 
     const lastPoint = this.polygon.getLastPoint();
@@ -217,5 +218,18 @@ export class Drawer {
   reset() {
     this.resetValues(new Polygon());
     this.draw();
+  }
+
+  undo() {
+    const closed = this.polygon.isClosed();
+
+    this.polygon.undo();
+
+    if (closed && !this.polygon.isClosed())
+      this.resetDragValues();
+  }
+
+  redo() {
+    this.polygon.redo();
   }
 }

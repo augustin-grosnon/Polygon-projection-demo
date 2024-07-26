@@ -11,6 +11,8 @@ This project is an interactive tool for visualizing the projection of a convex p
 - **Convex only mode**: Toggle whether the polygon should be convex-only. When enabled, the polygon must remain convex as you add points. Disabling it after drawing a non convex shape might lead to some issues. (*on* by default)
 - **Reset**: Start over by clearing the current polygon and starting with a fresh canvas.
 - **Remove last point**: Remove the most recently added point from the polygon. Disabled when the polygon is closed.
+- **Undo**: Undo an action.
+- **Redo**: Redo an action removed by the `undo` button.
 
 ## Technologies
 
@@ -67,3 +69,9 @@ This project is an interactive tool for visualizing the projection of a convex p
 
 6. **Removing the last point**
    - Click the "Remove last point" button to remove the most recently added point from the polygon.
+
+7. **Undo an action**
+   - Undo any action from the draw phase by clicking the "Undo" button. You can also use it to remove the last closing point.
+
+8. **Redo an action**
+   - Redo any action removed by the "Undo" button by clicking on the "Redo" button.
