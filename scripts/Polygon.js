@@ -16,7 +16,7 @@ export class Polygon {
       this.state = 'closed';
     else if (points.length >= 2)
       this.state = 'started';
-    else if (points.length == 1)
+    else if (points.length === 1)
       this.state = 'point';
     else
       this.state = 'empty';
@@ -240,5 +240,13 @@ export class Polygon {
         break;
     }
     this.updateState();
+  }
+
+  canUndo() {
+    return !!this.undoStack.length;
+  }
+
+  canRedo() {
+    return !!this.redoStack.length;
   }
 }

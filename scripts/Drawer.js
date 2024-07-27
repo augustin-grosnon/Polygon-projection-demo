@@ -4,32 +4,92 @@ export class Drawer {
   constructor(canvas, polygon) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
-    this.resetValues(polygon);
+    this
+      .resetValues(polygon)
+      .initDefaultToggles()
+      .initColorPickers()
+      .initButtons()
+      .updateButtonStates();
+  }
 
+  initDefaultToggles() {
     this.shouldClosePath = false;
     this.shouldFill = false;
     this.showPointLabels = false;
     this.dragBasePolygon = false;
 
+    return this;
+  }
+
+  initColorPickers() {
     document.getElementById('basePolygonColorPicker').addEventListener('change', (event) => {
       this.basePolygonColor = event.target.value;
       this.draw();
     });
-
     document.getElementById('dragPolygonColorPicker').addEventListener('change', (event) => {
       this.dragPolygonColor = event.target.value;
       this.draw();
     });
-
     document.getElementById('enclosingPolygonColorPicker').addEventListener('change', (event) => {
       this.enclosingPolygonColor = event.target.value;
       this.draw();
     });
-
     document.getElementById('vectorColorPicker').addEventListener('change', (event) => {
       this.vectorColor = event.target.value;
       this.draw();
     });
+
+    return this;
+  }
+
+  initButtons() {
+    const buttons = [
+      'toggleClose', 'toggleFill', 'toggleConvex', 'togglePointLabels',
+      'reset', 'removeLast', 'undo', 'redo', 'save', 'load',
+      'svgExport', 'toggleDragBasePolygon'
+    ];
+
+    const buttonActions = {
+      'toggleClose': this.toggleShouldClosePath.bind(this),
+      'toggleFill': this.toggleFill.bind(this),
+      'toggleConvex': this.toggleConvexOnly.bind(this),
+      'togglePointLabels': this.togglePointLabels.bind(this),
+      'reset': this.reset.bind(this),
+      'removeLast': this.removeLastPoint.bind(this),
+      'undo': this.undo.bind(this),
+      'redo': this.redo.bind(this),
+      'save': this.save.bind(this),
+      'load': this.load.bind(this),
+      'svgExport': this.exportToSvg.bind(this),
+      'toggleDragBasePolygon': this.toggleDragBasePolygon.bind(this)
+    };
+
+    buttons.forEach(id => {
+      const button = document.getElementById(id);
+      if (!button || !buttonActions[id])
+        return;
+
+      button.addEventListener('click', () => {
+        buttonActions[id]();
+        this.updateButtonStates();
+      });
+    });
+
+    return this;
+  }
+
+  updateButtonStates() {
+    document.getElementById('removeLast').disabled = this.polygon.isClosed();
+    document.getElementById('undo').disabled = !this.polygon.canUndo();
+    document.getElementById('redo').disabled = !this.polygon.canRedo();
+    document.getElementById('save').disabled = this.polygon.isEmpty();
+    document.getElementById('svgExport').disabled = !this.polygon.isClosed();
+    document.getElementById('toggleDragBasePolygon').disabled = !this.polygon.isClosed();
+    document.getElementById('toggleConvex').disabled = this.polygon.isClosed();
+    document.getElementById('toggleClose').disabled = this.polygon.isClosed();
+    document.getElementById('reset').disabled = this.polygon.isEmpty();
+
+    return this;
   }
 
   resetValues(polygon) {
@@ -41,6 +101,8 @@ export class Drawer {
     this.dragPolygonColor = '#0000FF';
     this.enclosingPolygonColor = '#FF0000';
     this.vectorColor = '#00FF00';
+
+    return this;
   }
 
   resetDragValues() {
@@ -53,6 +115,8 @@ export class Drawer {
     this.dragBaseCopy = null;
     this.currentMousePos = null;
     this.enclosingPolygon = null;
+
+    return this;
   }
 
   handleMouseDown(e) {
@@ -207,6 +271,8 @@ export class Drawer {
         this.ctx.fillText(`(${Math.round(point.x)}, ${Math.round(point.y)})`, point.x + 5, point.y - 5);
       });
     }
+
+    return this;
   }
 
   static hexToRgba(hex, opacity) {
@@ -254,12 +320,13 @@ export class Drawer {
     this.ctx.strokeStyle = this.polygon.isConvexAfterAdding({ x: this.currentMousePos.x, y: this.currentMousePos.y }) ? 'gray' : 'red';
     this.ctx.lineWidth = 1;
     this.ctx.stroke();
+
     return this
   }
 
   drawVector() {
     if (!this.vectorStart || !this.vectorEnd)
-      return;
+      return this;
 
     this.ctx.beginPath();
     this.ctx.moveTo(this.vectorStart.x, this.vectorStart.y);
@@ -269,15 +336,18 @@ export class Drawer {
     this.ctx.setLineDash([5, 5]);
     this.ctx.stroke();
     this.ctx.setLineDash([]);
+
+    return this;
   }
 
   draw() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    this
+    return this
       .drawAllPolygons()
       .drawLineFromLastPointToMouse()
-      .drawVector();
+      .drawVector()
+      .updateButtonStates();
   }
 
   removeLastPoint() {
@@ -309,8 +379,9 @@ export class Drawer {
   }
 
   reset() {
-    this.resetValues(new Polygon());
-    this.draw();
+    this
+      .resetValues(new Polygon())
+      .draw();
   }
 
   undo() {
@@ -392,7 +463,10 @@ export class Drawer {
           this.dragPolygonColor = state.dragPolygonColor || '#0000FF';
           this.enclosingPolygonColor = state.enclosingPolygonColor || '#FF0000';
           this.vectorColor = state.vectorColor || '#00FF00';
-          this.draw();
+
+          this
+            .draw()
+            .updateButtonStates();
         };
 
         reader.readAsText(file);
