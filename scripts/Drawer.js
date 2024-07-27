@@ -10,7 +10,55 @@ export class Drawer {
       .initColorPickers()
       .initButtons()
       .updateButtonStates()
-      .initOffscreenCanvas();
+      .initOffscreenCanvas()
+      .initKeyboardListeners();
+  }
+
+  initKeyboardListeners() {
+    window.addEventListener('keydown', (event) => {
+      switch (event.key) {
+        case 'ArrowDown':
+          this.scalePolygon(1 / 1.1);
+          break;
+        case 'ArrowUp':
+          this.scalePolygon(1.1)
+          break;
+        case 'ArrowLeft':
+          this.rotatePolygon(-Math.PI / 36);
+          break;
+        case 'ArrowRight':
+          this.rotatePolygon(Math.PI / 36);
+          break;
+      }
+    });
+
+    return this;
+  }
+
+  scalePolygon(factor) {
+    if (this.polygon) {
+      this.polygon.scale(factor);
+      if (this.dragPolygon)
+        this.dragPolygon.scale(factor);
+      this
+        .updateEnclosingPolygon()
+        .draw();
+    }
+
+    return this;
+  }
+
+  rotatePolygon(angle) {
+    if (this.polygon) {
+      this.polygon.rotate(angle);
+      if (this.dragPolygon)
+        this.dragPolygon.rotate(angle);
+      this
+        .updateEnclosingPolygon()
+        .draw();
+    }
+
+    return this;
   }
 
   initOffscreenCanvas() {
@@ -20,7 +68,7 @@ export class Drawer {
     this.offscreenCtx = this.offscreenCanvas.getContext('2d');
 
     this.gridSize = 20;
-    this.drawGrid();
+    return this.drawGrid();
   }
 
   initDefaultToggles() {
@@ -444,6 +492,9 @@ export class Drawer {
     const closed = this.polygon.isClosed();
 
     this.polygon.undo();
+    if (this.dragPolygon)
+      this.dragPolygon.undo();
+    this.updateEnclosingPolygon();
 
     if (closed && !this.polygon.isClosed())
       this.resetDragValues();
@@ -453,6 +504,9 @@ export class Drawer {
 
   redo() {
     this.polygon.redo();
+    if (this.dragPolygon)
+      this.dragPolygon.redo();
+    this.updateEnclosingPolygon();
 
     this.draw();
   }
@@ -569,3 +623,5 @@ export class Drawer {
     URL.revokeObjectURL(url);
   }
 }
+
+// TODO: rotate && scale - apply of vector

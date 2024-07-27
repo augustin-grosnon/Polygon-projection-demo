@@ -190,7 +190,7 @@ export class Polygon {
     return buildHull(points).concat(buildHull(points.slice().reverse()));
   }
 
-  scale(factor) {
+  scale(factor, noStack = false) {
     if (factor <= 0) {
       alert("Scale factor must be greater than zero.");
       return this;
@@ -203,13 +203,15 @@ export class Polygon {
       y: centroid.y + (p.y - centroid.y) * factor
     }));
 
-    this.undoStack.push({ action: 'scale', factor: 1 / factor });
-    this.redoStack = [];
+    if (!noStack) {
+      this.undoStack.push({ action: 'scale', factor: 1 / factor });
+      this.redoStack = [];
+    }
 
     return this.updateState();
   }
 
-  rotate(angle) {
+  rotate(angle, noStack = false) {
     const centroid = this.calculateCentroid();
 
     this.points = this.points.map(p => {
@@ -225,8 +227,10 @@ export class Polygon {
       };
     });
 
-    this.undoStack.push({ action: 'rotate', angle: -angle });
-    this.redoStack = [];
+    if (!noStack) {
+      this.undoStack.push({ action: 'rotate', angle: -angle });
+      this.redoStack = [];
+    }
 
     return this.updateState();
   }
@@ -270,12 +274,12 @@ export class Polygon {
         this.points.pop();
         break;
       case 'scale':
-        this.redoStack.push({ action: 'scale', factor: lastAction.factor });
-        this.scale(lastAction.factor);
+        this.redoStack.push({ action: 'scale', factor: 1 / lastAction.factor });
+        this.scale(lastAction.factor, true);
         break;
       case 'rotate':
-        this.redoStack.push({ action: 'rotate', angle: lastAction.angle });
-        this.rotate(lastAction.angle);
+        this.redoStack.push({ action: 'rotate', angle: -lastAction.angle });
+        this.rotate(lastAction.angle, true);
         break;
     }
     this.updateState();
@@ -304,12 +308,12 @@ export class Polygon {
         this.points.push(this.points[0]);
         break;
       case 'scale':
-        this.undoStack.push({ action: 'scale', factor: lastAction.factor });
-        this.scale(lastAction.factor);
+        this.undoStack.push({ action: 'scale', factor: 1 / lastAction.factor });
+        this.scale(lastAction.factor, true);
         break;
       case 'rotate':
-        this.undoStack.push({ action: 'rotate', angle: lastAction.angle });
-        this.rotate(lastAction.angle);
+        this.undoStack.push({ action: 'rotate', angle: -lastAction.angle });
+        this.rotate(lastAction.angle, true);
         break;
     }
     this.updateState();

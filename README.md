@@ -21,6 +21,8 @@ This project is an interactive tool for visualizing the projection of a convex p
 - **Select colors**: Select colors for each polygon and the vector.
 - **Drag base polygon**: Toggle to drag the base polygon instead of the copy.
 - **Draw grid**: Display a background grid.
+- **Scale up / down**: Scale the current shape up or down.
+- **Rotate left / right**: Rotate the current shape left or right.
 
 ## Technologies
 
@@ -107,3 +109,9 @@ This project is an interactive tool for visualizing the projection of a convex p
 
 16. **Draw grid**
    - Click on the "Grid" button to display a background grid. While the grid is displayed, any point placed or movement will be set to the closest grid point.
+
+17. **Scale up / down**
+   - Use the directional arrows to scale the shape up or down by (up: `up arrow` - *x1.1*, down: `down arrow` - *x1/1.1*)
+
+18. **Rotate left / right**
+   - Use the directional arrows to rotate the shape left or right (left: `left arrow` - *-pi/36*, right: `right arrow` - *pi/36*)
