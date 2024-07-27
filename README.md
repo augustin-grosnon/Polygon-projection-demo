@@ -20,6 +20,7 @@ This project is an interactive tool for visualizing the projection of a convex p
 - **Export to svg**: Export the canvas to a `.svg` file.
 - **Select colors**: Select colors for each polygon and the vector.
 - **Drag base polygon**: Toggle to drag the base polygon instead of the copy.
+- **Draw grid**: Display a background grid.
 
 ## Technologies
 
@@ -103,3 +104,6 @@ This project is an interactive tool for visualizing the projection of a convex p
 
 15. **Drag base polygon**
    - Click on the "Drag base polygon" button to drag the base polygon instead of the copy. It will save the current vector.
+
+16. **Draw grid**
+   - Click on the "Grid" button to display a background grid. While the grid is displayed, any point placed or movement will be set to the closest grid point.

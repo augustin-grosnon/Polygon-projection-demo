@@ -9,7 +9,18 @@ export class Drawer {
       .initDefaultToggles()
       .initColorPickers()
       .initButtons()
-      .updateButtonStates();
+      .updateButtonStates()
+      .initOffscreenCanvas();
+  }
+
+  initOffscreenCanvas() {
+    this.offscreenCanvas = document.createElement('canvas');
+    this.offscreenCanvas.width = canvas.width;
+    this.offscreenCanvas.height = canvas.height;
+    this.offscreenCtx = this.offscreenCanvas.getContext('2d');
+
+    this.gridSize = 20;
+    this.drawGrid();
   }
 
   initDefaultToggles() {
@@ -17,8 +28,6 @@ export class Drawer {
     this.shouldFill = false;
     this.showPointLabels = false;
     this.dragBasePolygon = false;
-
-    this.gridSize = 20;
     this.showGrid = false;
 
     return this;
@@ -356,27 +365,26 @@ export class Drawer {
   }
 
   drawGrid() {
-    if (!this.showGrid)
-      return this;
+    const { width, height } = this.offscreenCanvas;
 
-    this.ctx.strokeStyle = '#e0e0e0';
-    this.ctx.lineWidth = 0.5;
+    this.offscreenCtx.clearRect(0, 0, width, height);
 
-    for (let x = 0; x < this.canvas.width; x += this.gridSize) {
-      this.ctx.beginPath();
-      this.ctx.moveTo(x, 0);
-      this.ctx.lineTo(x, this.canvas.height);
-      this.ctx.stroke();
+    this.offscreenCtx.strokeStyle = '#e0e0e0';
+    this.offscreenCtx.lineWidth = 0.5;
+
+    this.offscreenCtx.beginPath();
+    for (let x = 0; x <= width; x += this.gridSize) {
+      this.offscreenCtx.moveTo(x, 0);
+      this.offscreenCtx.lineTo(x, height);
     }
+    this.offscreenCtx.stroke();
 
-    for (let y = 0; y < this.canvas.height; y += this.gridSize) {
-      this.ctx.beginPath();
-      this.ctx.moveTo(0, y);
-      this.ctx.lineTo(this.canvas.width, y);
-      this.ctx.stroke();
+    this.offscreenCtx.beginPath();
+    for (let y = 0; y <= height; y += this.gridSize) {
+      this.offscreenCtx.moveTo(0, y);
+      this.offscreenCtx.lineTo(width, y);
     }
-
-    // TODO: optimize
+    this.offscreenCtx.stroke();
 
     return this;
   }
@@ -384,8 +392,10 @@ export class Drawer {
   draw() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
+    if (this.showGrid)
+      this.ctx.drawImage(this.offscreenCanvas, 0, 0);
+
     return this
-      .drawGrid()
       .drawAllPolygons()
       .drawLineFromLastPointToMouse()
       .drawVector()
