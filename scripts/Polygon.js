@@ -190,6 +190,63 @@ export class Polygon {
     return buildHull(points).concat(buildHull(points.slice().reverse()));
   }
 
+  scale(factor) {
+    if (factor <= 0) {
+      alert("Scale factor must be greater than zero.");
+      return this;
+    }
+
+    const centroid = this.calculateCentroid();
+
+    this.points = this.points.map(p => ({
+      x: centroid.x + (p.x - centroid.x) * factor,
+      y: centroid.y + (p.y - centroid.y) * factor
+    }));
+
+    this.undoStack.push({ action: 'scale', factor: 1 / factor });
+    this.redoStack = [];
+
+    return this.updateState();
+  }
+
+  rotate(angle) {
+    const centroid = this.calculateCentroid();
+
+    this.points = this.points.map(p => {
+      const x = p.x - centroid.x;
+      const y = p.y - centroid.y;
+
+      const rotatedX = x * Math.cos(angle) - y * Math.sin(angle);
+      const rotatedY = x * Math.sin(angle) + y * Math.cos(angle);
+
+      return {
+        x: centroid.x + rotatedX,
+        y: centroid.y + rotatedY
+      };
+    });
+
+    this.undoStack.push({ action: 'rotate', angle: -angle });
+    this.redoStack = [];
+
+    return this.updateState();
+  }
+
+  calculateCentroid() {
+    if (!this.points.length)
+      return { x: 0, y: 0 };
+
+    let cx = 0;
+    let cy = 0;
+    const numPoints = this.points.length;
+
+    for (let point of this.points) {
+      cx += point.x;
+      cy += point.y;
+    }
+
+    return { x: cx / numPoints, y: cy / numPoints };
+  }
+
   undo() {
     if (!this.undoStack.length)
       return;
@@ -211,6 +268,14 @@ export class Polygon {
       case 'close':
         this.redoStack.push({ action: 'close' });
         this.points.pop();
+        break;
+      case 'scale':
+        this.redoStack.push({ action: 'scale', factor: lastAction.factor });
+        this.scale(lastAction.factor);
+        break;
+      case 'rotate':
+        this.redoStack.push({ action: 'rotate', angle: lastAction.angle });
+        this.rotate(lastAction.angle);
         break;
     }
     this.updateState();
@@ -237,6 +302,14 @@ export class Polygon {
       case 'close':
         this.undoStack.push({ action: 'close' });
         this.points.push(this.points[0]);
+        break;
+      case 'scale':
+        this.undoStack.push({ action: 'scale', factor: lastAction.factor });
+        this.scale(lastAction.factor);
+        break;
+      case 'rotate':
+        this.undoStack.push({ action: 'rotate', angle: lastAction.angle });
+        this.rotate(lastAction.angle);
         break;
     }
     this.updateState();
