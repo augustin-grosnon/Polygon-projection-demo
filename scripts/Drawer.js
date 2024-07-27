@@ -18,6 +18,9 @@ export class Drawer {
     this.showPointLabels = false;
     this.dragBasePolygon = false;
 
+    this.gridSize = 20;
+    this.showGrid = false;
+
     return this;
   }
 
@@ -46,7 +49,7 @@ export class Drawer {
     const buttons = [
       'toggleClose', 'toggleFill', 'toggleConvex', 'togglePointLabels',
       'reset', 'removeLast', 'undo', 'redo', 'save', 'load',
-      'svgExport', 'toggleDragBasePolygon'
+      'svgExport', 'toggleDragBasePolygon', 'toggleGrid'
     ];
 
     const buttonActions = {
@@ -61,7 +64,8 @@ export class Drawer {
       'save': this.save.bind(this),
       'load': this.load.bind(this),
       'svgExport': this.exportToSvg.bind(this),
-      'toggleDragBasePolygon': this.toggleDragBasePolygon.bind(this)
+      'toggleDragBasePolygon': this.toggleDragBasePolygon.bind(this),
+      'toggleGrid': this.toggleGrid.bind(this)
     };
 
     buttons.forEach(id => {
@@ -79,15 +83,15 @@ export class Drawer {
   }
 
   updateButtonStates() {
+    document.getElementById('toggleClose').disabled = this.polygon.isClosed();
+    document.getElementById('toggleConvex').disabled = this.polygon.isClosed();
     document.getElementById('removeLast').disabled = this.polygon.isClosed();
+    document.getElementById('reset').disabled = this.polygon.isEmpty();
     document.getElementById('undo').disabled = !this.polygon.canUndo();
     document.getElementById('redo').disabled = !this.polygon.canRedo();
     document.getElementById('save').disabled = this.polygon.isEmpty();
     document.getElementById('svgExport').disabled = !this.polygon.isClosed();
     document.getElementById('toggleDragBasePolygon').disabled = !this.polygon.isClosed();
-    document.getElementById('toggleConvex').disabled = this.polygon.isClosed();
-    document.getElementById('toggleClose').disabled = this.polygon.isClosed();
-    document.getElementById('reset').disabled = this.polygon.isEmpty();
 
     return this;
   }
@@ -119,9 +123,19 @@ export class Drawer {
     return this;
   }
 
+  snapToGrid(point) {
+    if (!this.showGrid)
+      return point;
+
+    const snappedX = Math.round(point.x / this.gridSize) * this.gridSize;
+    const snappedY = Math.round(point.y / this.gridSize) * this.gridSize;
+
+    return { x: snappedX, y: snappedY };
+  }
+
   handleMouseDown(e) {
     const { offsetX, offsetY } = e;
-    const point = { x: offsetX, y: offsetY };
+    const point = this.snapToGrid({ x: offsetX, y: offsetY });
 
     this
       .handlePointPlacement(point)
@@ -167,10 +181,11 @@ export class Drawer {
 
   handleMouseMove(e) {
     const { offsetX, offsetY } = e;
+    const point = this.snapToGrid({ x: offsetX, y: offsetY });
 
     this
-      .updateMousePos({ x: offsetX, y: offsetY })
-      .updateDraggedPolygonPosition(offsetX, offsetY)
+      .updateMousePos(point)
+      .updateDraggedPolygonPosition(point.x, point.y)
       .draw();
   }
 
@@ -340,10 +355,37 @@ export class Drawer {
     return this;
   }
 
+  drawGrid() {
+    if (!this.showGrid)
+      return this;
+
+    this.ctx.strokeStyle = '#e0e0e0';
+    this.ctx.lineWidth = 0.5;
+
+    for (let x = 0; x < this.canvas.width; x += this.gridSize) {
+      this.ctx.beginPath();
+      this.ctx.moveTo(x, 0);
+      this.ctx.lineTo(x, this.canvas.height);
+      this.ctx.stroke();
+    }
+
+    for (let y = 0; y < this.canvas.height; y += this.gridSize) {
+      this.ctx.beginPath();
+      this.ctx.moveTo(0, y);
+      this.ctx.lineTo(this.canvas.width, y);
+      this.ctx.stroke();
+    }
+
+    // TODO: optimize
+
+    return this;
+  }
+
   draw() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
     return this
+      .drawGrid()
       .drawAllPolygons()
       .drawLineFromLastPointToMouse()
       .drawVector()
@@ -376,6 +418,10 @@ export class Drawer {
 
   toggleDragBasePolygon() {
     this.dragBasePolygon = !this.dragBasePolygon;
+  }
+
+  toggleGrid() {
+    this.showGrid = !this.showGrid;
   }
 
   reset() {
@@ -421,6 +467,7 @@ export class Drawer {
       enclosingPolygonColor: this.enclosingPolygonColor,
       vectorColor: this.vectorColor,
       dragBasePolygon: this.dragBasePolygon,
+      showGrid: this.showGrid,
     };
     const data = btoa(JSON.stringify(state));
     const blob = new Blob([data], { type: 'application/json' });
@@ -463,6 +510,7 @@ export class Drawer {
           this.dragPolygonColor = state.dragPolygonColor || '#0000FF';
           this.enclosingPolygonColor = state.enclosingPolygonColor || '#FF0000';
           this.vectorColor = state.vectorColor || '#00FF00';
+          this.showGrid = state.showGrid;
 
           this
             .draw()
